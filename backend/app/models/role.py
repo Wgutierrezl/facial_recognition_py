@@ -1,4 +1,5 @@
 from app.config.db_config import Base
+from sqlalchemy import Column, Integer, String
 
 class Role(Base):
 

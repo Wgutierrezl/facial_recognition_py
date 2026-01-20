@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Date, Time, Float, ForeignKey, String
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String
 from app.config.db_config import Base
 
 class Attendance(Base):
