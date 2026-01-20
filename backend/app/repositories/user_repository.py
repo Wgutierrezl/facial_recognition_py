@@ -1,5 +1,5 @@
 from app.models.user import User
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 
 class UserRepository:
@@ -13,10 +13,25 @@ class UserRepository:
         return user_data
 
     def get_user_by_email(self, email: str) -> User:
-        return self.db.query(User).filter(User.email == email).first()
+        return (
+            self.db.query(User)
+                .options(joinedload(User.role))
+                .filter(User.email == email)
+                .first()
+        )
 
-    def get_user_by_id(self, user_id: int) -> User:
-        return self.db.query(User).filter(User.id == user_id).first()
-    
+    def get_user_by_id(self, user_id: str) -> User:
+        return (
+            self.db.query(User)
+                .options(joinedload(User.role))
+                .filter(User.user_id == user_id)
+                .first()
+        )
+
     def get_user_by_face_id(self, face_id:str) -> User:
-        return self.db.query(User).filter(User.face_id == face_id).first()
+        return (
+            self.db.query(User)
+                .options(joinedload(User.role))
+                .filter(User.face_id == face_id)
+                .first()
+        )

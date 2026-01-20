@@ -8,7 +8,7 @@ class Attendance(Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
 
     work_date = Column(Date, nullable=False)        # Día trabajado
