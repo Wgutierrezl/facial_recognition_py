@@ -46,3 +46,12 @@ class RekognitionService:
 
         except (BotoCoreError, ClientError) as e:
             raise Exception(f"Error buscando rostro: {e}")
+        
+    def delete_collection(self, collection_id):
+        try:
+            self.client.delete_collection(CollectionId=collection_id)
+            return True
+        except self.client.exceptions.ResourceNotFoundException:
+            return False
+        except (BotoCoreError, ClientError) as e:
+            raise Exception(f"Error eliminando colección: {e}")
