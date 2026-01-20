@@ -7,6 +7,9 @@ from app.services.rekognition_service import RekognitionService
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.controllers.user_controller import router as user_router
+from app.controllers.role_controller import router as role_router
+from app.controllers.area_controller import router as area_router
+from app.controllers.place_controller import router as place_router
 
 
 # Crear tablas
@@ -22,4 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(role_router)
+app.include_router(area_router)
+app.include_router(place_router)
 app.include_router(user_router)

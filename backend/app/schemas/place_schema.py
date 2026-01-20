@@ -6,7 +6,9 @@ class PlaceCreated(BaseModel):
     longitude: str
     radius_meters: int
 
-    orm_mode = True
+    class Config:
+        orm_mode = True
+    
 
 class PlaceResponse(BaseModel):
     id: int
@@ -15,4 +17,5 @@ class PlaceResponse(BaseModel):
     longitude: str
     radius_meters: int
 
-    orm_mode = True
+    class Config:
+        orm_mode = True
