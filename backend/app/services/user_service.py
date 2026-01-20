@@ -1,7 +1,6 @@
 from app.models.user import User
 from fastapi import UploadFile
 from app.schemas.user_schema import UserCreate, UserResponse
-from app.dependencies import get_db
 from app.repositories.user_repository import UserRepository
 from sqlalchemy.orm import Session
 from app.services.rekognition_service import RekognitionService

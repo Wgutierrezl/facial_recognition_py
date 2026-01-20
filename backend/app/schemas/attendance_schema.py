@@ -8,7 +8,8 @@ class AttendanceEntrance(BaseModel):
     entry_time = date     
     face_verified = str
 
-    orm_mode = True
+    class Config:
+        orm_mode = True
 
 class AttendanceExit(BaseModel):
     user_id:str
@@ -17,8 +18,9 @@ class AttendanceExit(BaseModel):
     exit_time = date     
     total_hours = float
     face_verified = str
-
-    orm_mode = True
+    
+    class Config:
+        orm_mode = True
 
 class AttendanceResponse(BaseModel):
     id: int
@@ -30,5 +32,6 @@ class AttendanceResponse(BaseModel):
     total_hours: float | None
     face_verified: str
 
-    orm_mode = True
+    class Config:
+        orm_mode = True
 

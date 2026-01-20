@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.schemas.user_schema import UserCreate, UserResponse
 from app.services.user_service import UserService
 from app.services.rekognition_service import RekognitionService
-from app.dependencies import get_db
+from app.dependencie.db_dependencie import get_db
 
 router = APIRouter(
     prefix="/users",
