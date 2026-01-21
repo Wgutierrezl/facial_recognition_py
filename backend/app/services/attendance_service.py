@@ -29,6 +29,12 @@ class AttendanceService:
             if not face_id:
                 raise ValueError('your face doesnt coincide with the facial rekognition')
             
+            # we ask if the user check the entrance
+            existing_entrance=self.attendance_repository.get_actual_attendance_user_id(user_id)
+
+            if existing_entrance.entry_time:
+                raise ValueError(f'you cant check the entrance, because you check at {existing_entrance.entry_time}')
+            
             attendance_create=Attendance(
                 user_id=user_id,
                 place_id=data.place_id,
@@ -55,7 +61,7 @@ class AttendanceService:
             actual_attendance=self.attendance_repository.get_attendance_today_user_id(user_id=user_id)
 
             if not actual_attendance:
-                raise('you dont check the entrance')
+                raise ValueError('You already checked out')
             
             image_bytes=image.file.read()
             
@@ -64,6 +70,12 @@ class AttendanceService:
             
             if not facial_id:
                 raise ValueError('we dont rekognition your face id')
+            
+            """ existing_exit=self.attendance_repository.get_actual_attendance_user_id(user_id)
+
+            # we ask if the user check the exit
+            if existing_exit.exit_time is not None:
+                raise ValueError(f'you cant check the exit, because you check the exit at {existing_exit.exit_time}') """
             
             # we get the actual date that the user leave or get out
             actual_date=datetime.now().time()
