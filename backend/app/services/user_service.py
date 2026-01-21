@@ -139,3 +139,10 @@ class UserService:
         
         return users
         
+    def get_user_by_id(self, user_id:str) -> UserResponse:
+        user=self.user_repository.get_user_by_id(user_id)
+
+        if user is None:
+            return None
+        
+        return user
