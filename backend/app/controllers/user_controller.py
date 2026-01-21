@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
@@ -5,6 +6,8 @@ from app.schemas.user_schema import UserCreate, UserResponse, SessionData, UserL
 from app.services.user_service import UserService
 from app.services.rekognition_service import RekognitionService
 from app.dependencie.db_dependencie import get_db
+from app.dependencie.jwt_dependencie import get_current_user
+from app.dependencie.role_dependencie import require_roles
 
 router = APIRouter(
     prefix="/users",
@@ -80,5 +83,24 @@ def login_user_manually(
 
         return session_data
 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+    
+
+@router.get('/getAllUsers', response_model=List[UserResponse])
+def get_all_users(db: Session = Depends(get_db),
+                  current_user: dict = Depends(get_current_user),
+                  role = Depends(require_roles('admin'))) -> List[UserResponse]:
+    try:
+
+        user_service=UserService(db, rekognition_service=RekognitionService())
+
+        users=user_service.get_all_users()
+
+        if not users:
+            raise HTTPException(status_code=404, detail="there`s no users in the db")
+        
+        return users
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
