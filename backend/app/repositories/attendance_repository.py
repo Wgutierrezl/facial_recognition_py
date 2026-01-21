@@ -42,5 +42,9 @@ class AttendanceRepository:
                                                 Attendance.work_date==date.today(),
                                                 Attendance.exit_time==None).first()
     
+    def get_actual_attendance_user_id(self, user_id:str) -> AttendanceResponse:
+        return self.db.query(Attendance).filter(Attendance.user_id==user_id,
+                                                Attendance.work_date==date.today()).first()
+    
     
     
