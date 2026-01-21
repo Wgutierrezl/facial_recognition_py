@@ -104,3 +104,40 @@ def get_all_users(db: Session = Depends(get_db),
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+    
+@router.get('/getProfile', response_model=UserResponse)
+def get_user_profile(db:Session=Depends(get_db),
+                     current_user:dict=Depends(get_current_user)) -> UserResponse:
+    try:
+
+        user_service=UserService(db, rekognition_service=RekognitionService())
+
+        user_profile=user_service.get_user_by_id(current_user['user_id'])
+
+        if user_profile is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials ()")
+        
+        return user_profile
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+    
+@router.get("/getUserById/{user_id}", response_model=UserResponse)
+def get_user_by_userId(user_id:str,
+                       db:Session=Depends(get_db),
+                       current_user:dict=Depends(get_current_user),
+                       role=Depends(require_roles('admin'))) -> UserResponse:
+    try:
+
+        _service=UserService(db, rekognition_service=RekognitionService())
+
+        user=_service.get_user_by_id(user_id)
+
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials ()")
+        
+        return user
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+
