@@ -19,28 +19,47 @@ class UserService:
     def create_user(self, user_create: UserCreate, file: UploadFile) -> UserResponse:
         try:
 
+            # Check if user with the same email already exists
             user_existing = self.user_repository.get_user_by_email(user_create.email)
             if user_existing:
                 raise ValueError("User with this email already exists")
             
             image_bytes = file.file.read()
 
+            # Define the collection ID for Rekognition
             collection_id = "users_collection"
 
-            self.rekognition_service.delete_collection(collection_id)
+            face_id_existing=self.rekognition_service.search_face(
+                collection_id=collection_id,
+                image_bytes=image_bytes
+            )
 
+            # If a face is already recognized, raise an error
+            if face_id_existing:
+                raise ValueError("User with this face already exists")
+            
+
+            # To ensure a clean state, delete and recreate the collection
+            """ self.rekognition_service.delete_collection(collection_id) """
+
+            # Create the collection if it doesn't exist
             self.rekognition_service.create_collection(collection_id)
 
+            # Generate a safe external ID for the face
             safe_external_id = str(uuid4())
 
+            # Index the face and get the face ID
             face_id=self.rekognition_service.index_face(
                 collection_id=collection_id,
                 image_bytes=image_bytes,
                 external_image_id=safe_external_id
             )
 
+
+            # Hash the user's password
             password_hashed=self.hash_service.hash_password(user_create.password_hash)
 
+            # Create the user in the database
             user_create=User(
                 name=user_create.name,
                 email=user_create.email,
@@ -51,6 +70,7 @@ class UserService:
                 face_id=face_id
             )
 
+            # Save the user and return the response
             return self.user_repository.create_user(user_create)
         
         except Exception as e:
