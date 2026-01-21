@@ -1,4 +1,6 @@
+from typing import List
 from app.models.user import User
+from app.schemas.user_schema import UserResponse
 from sqlalchemy.orm import Session, joinedload
 
 
@@ -15,7 +17,9 @@ class UserRepository:
     def get_user_by_email(self, email: str) -> User:
         return (
             self.db.query(User)
-                .options(joinedload(User.role))
+                .options(joinedload(User.role),
+                         joinedload(User.area),
+                         joinedload(User.place))
                 .filter(User.email == email)
                 .first()
         )
@@ -23,7 +27,9 @@ class UserRepository:
     def get_user_by_id(self, user_id: str) -> User:
         return (
             self.db.query(User)
-                .options(joinedload(User.role))
+                .options(joinedload(User.role),
+                         joinedload(User.area),
+                         joinedload(User.place))
                 .filter(User.user_id == user_id)
                 .first()
         )
@@ -31,7 +37,19 @@ class UserRepository:
     def get_user_by_face_id(self, face_id:str) -> User:
         return (
             self.db.query(User)
-                .options(joinedload(User.role))
+                .options(joinedload(User.role),
+                         joinedload(User.area),
+                         joinedload(User.place))
                 .filter(User.face_id == face_id)
                 .first()
         )
+    
+    def get_all_users(self) -> List[UserResponse]:
+        return (
+            self.db.query(User)
+                .options(joinedload(User.role), 
+                         joinedload(User.place), 
+                         joinedload(User.area))
+                .all()
+        )
+        

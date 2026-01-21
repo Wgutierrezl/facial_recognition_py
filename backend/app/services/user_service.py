@@ -1,3 +1,4 @@
+from typing import List
 from app.models.user import User
 from app.security.token_service import TokenService
 from app.security.hash_service import HashService
@@ -129,3 +130,12 @@ class UserService:
         )
 
         return session_data
+    
+    def get_all_users(self) -> List[UserResponse]:
+        users=self.user_repository.get_all_users()
+
+        if not users:
+            return None
+        
+        return users
+        

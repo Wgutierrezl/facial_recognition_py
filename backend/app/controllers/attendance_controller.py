@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 from app.schemas.attendance_schema import AttendanceEntrance, AttendanceResponse
@@ -59,6 +60,47 @@ def register_exit(
             raise HTTPException(status_code=400, detail='we cant create the attendance exit')
         
         return attendance_exit
+    
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+    
+@router.get('/getMyAttendance', response_model=List[AttendanceResponse])
+def get_my_attendance(db:Session=Depends(get_db),
+                      current_user:dict=Depends(get_current_user)) -> List[AttendanceResponse]:
+    try:
+
+        _service=AttendanceService(db)
+
+        attendance=_service.get_attendance_by_user_id(current_user['user_id'])
+
+        if not attendance:
+            raise HTTPException(status_code=404, detail='you dont have attendance')
+        
+        return attendance
+    
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+    
+
+@router.get('/getAttendanceByUserId/{user_id}', response_model=List[AttendanceResponse])
+def get_my_attendance(user_id:str,
+                      db:Session=Depends(get_db),
+                      current_user:dict=Depends(get_current_user),
+                      role=Depends(require_roles('admin'))) -> List[AttendanceResponse]:
+    try:
+
+        _service=AttendanceService(db)
+
+        attendance=_service.get_attendance_by_user_id(user_id)
+
+        if not attendance:
+            raise HTTPException(status_code=404, detail='the users doesnt have attendance')
+        
+        return attendance
     
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))

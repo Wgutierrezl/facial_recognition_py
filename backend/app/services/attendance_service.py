@@ -87,6 +87,15 @@ class AttendanceService:
             return attendance_updated
         except Exception as e:
             raise e
+    
+    def get_attendance_by_user_id(self, user_id:str) -> List[AttendanceResponse]:
+        attendance=self.attendance_repository.get_attendance_by_user_id(user_id)
+
+        if not attendance:
+            return None
+        
+        return attendance
+    
 
 
 
