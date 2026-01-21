@@ -10,7 +10,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     token_service = TokenService()
     try:
         payload = jwt.decode(token, token_service.SECRET_KEY, algorithms=[token_service.ALGORITHM])
-        user_id: int = payload.get("id")
+        user_id: str = payload.get("user_id")
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
