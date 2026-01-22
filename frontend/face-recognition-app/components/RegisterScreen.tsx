@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-nativ
 import { useAppContext } from '@/components/context/AppContext';
 import { Camera, UserPlus, ArrowLeft, Check } from 'lucide-react-native';
 import { styles } from '@/styles/RegisterScreenStyles';
+import FacialVerification from './FacialVerification';
 
 interface RegisterScreenProps {
   onBack: () => void;
@@ -19,6 +20,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
     sede: '',
   });
   const [facialCaptured, setFacialCaptured] = useState(false);
+  const [facialFile, setFacialFile] = useState<any>(null);
+  const [showFacialVerification, setShowFacialVerification] = useState(false);
   const [error, setError] = useState('');
   const [showAreaPicker, setShowAreaPicker] = useState(false);
   const [showSedePicker, setShowSedePicker] = useState(false);
@@ -28,8 +31,19 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
   };
 
   const handleCaptureFacial = () => {
-    // Simulación de captura facial
+    setShowFacialVerification(true);
+  };
+
+  const handleFacialVerificationSuccess = (facialFileData: any) => {
+    // facialFileData es el archivo/objeto devuelto por el componente FacialVerification
+    setFacialFile(facialFileData);
     setFacialCaptured(true);
+    setShowFacialVerification(false);
+    setError('');
+  };
+
+  const handleFacialVerificationCancel = () => {
+    setShowFacialVerification(false);
   };
 
   const handleSubmit = () => {
@@ -46,7 +60,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
     registerUser({
       ...formData,
       role: 'employee',
-      facialImage: `facial-${Date.now()}`,
+      facialImage: facialFile,
     });
 
     onRegisterSuccess();
@@ -54,6 +68,15 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
 
   return (
     <View style={styles.container}>
+      {/* Componente de verificación facial */}
+      {showFacialVerification && (
+        <FacialVerification
+          actionType="entrada"
+          onSuccess={handleFacialVerificationSuccess}
+          onCancel={handleFacialVerificationCancel}
+        />
+      )}
+
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
