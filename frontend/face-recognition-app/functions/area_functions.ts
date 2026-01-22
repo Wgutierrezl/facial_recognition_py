@@ -5,7 +5,7 @@ import { AreaCreate, AreaResponse } from "./models/area";
 
 export async function CreateArea(data:AreaCreate) : Promise<AreaResponse | void> {
     try{
-        const response=await api.post('/areas/createArea', data)
+        const response=await api.post<AreaResponse>('/areas/createArea', data)
         console.log(response.data);
         return response.data;
 
@@ -24,7 +24,7 @@ export async function CreateArea(data:AreaCreate) : Promise<AreaResponse | void>
 
 export async function GetAllAreas() : Promise<AreaResponse[] | void> {
     try{
-        const response=await api.get('/areas/getAllAreas')
+        const response=await api.get<AreaResponse[]>('/areas/getAllAreas')
         console.log(response.data);
         return response.data;
 

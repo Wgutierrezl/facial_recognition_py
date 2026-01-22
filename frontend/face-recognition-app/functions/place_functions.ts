@@ -1,11 +1,12 @@
 import api from "./api_function";
 import Swal from "sweetalert2";
 import { PlaceCreate, PlaceResponse } from "./models/place";
+import { RoleResponse } from "./models/role";
 
 
 export async function CreatePlace(data:PlaceCreate) : Promise<PlaceResponse | void> {
     try{
-        const response=await api.post('/places/createPlace', data)
+        const response=await api.post<PlaceResponse>('/places/createPlace', data)
         console.log(response.data);
         return response.data;
 
@@ -24,7 +25,7 @@ export async function CreatePlace(data:PlaceCreate) : Promise<PlaceResponse | vo
 
 export async function GetAllPlaces() : Promise<PlaceResponse[] | void> {
     try{
-        const response=await api.get('/places/getAllPlaces')
+        const response=await api.get<PlaceResponse[]>('/places/getAllPlaces')
         console.log(response.data);
         return response.data;
 

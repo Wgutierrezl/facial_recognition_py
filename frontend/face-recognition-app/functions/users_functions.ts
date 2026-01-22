@@ -29,12 +29,12 @@ export async function RegisterUser(data:UserCreate) : Promise<UserResponse | voi
 }
 
 //METHOD TO LOG AN USER BY FACE ID
-export async function GetUserByFaceId(data:LogUser) : Promise<UserResponse | void> {
+export async function GetUserByFaceId(data:LogUser) : Promise<SessionDTO | void> {
     try{
         const form=new FormData();
         form.append('image',data.image);
 
-        const response=await api.post<UserResponse>('/users/searchUserByFace',form,{
+        const response=await api.post<SessionDTO>('/users/searchUserByFace',form,{
             headers:{
                 'Content-Type':'multipart/form-data'
             }
@@ -51,7 +51,7 @@ export async function GetUserByFaceId(data:LogUser) : Promise<UserResponse | voi
 //METHOD TO LOG USER MANUALLY
 export async function LoginManually(data:LoginDTO) : Promise<SessionDTO | void> {
     try{
-        const response=await api.post('/users/loginManually',data)
+        const response=await api.post<SessionDTO>('/users/loginManually',data)
         console.log(response.data)
         return response.data
 
@@ -71,9 +71,9 @@ export async function LoginManually(data:LoginDTO) : Promise<SessionDTO | void> 
 //METHOD TO GET ALL USERS - ADMIN
 export async function GetAllUsers() : Promise<UserResponse[] | void> {
     try{
-        const response=await api.get('/users/getAllUsers')
+        const response=await api.get<UserResponse[]>('/users/getAllUsers')
         console.log(response.data)
-        return response.data
+        return response.data 
 
     }catch(error:any){
         const statusCode=error.response.statusCode
@@ -91,7 +91,7 @@ export async function GetAllUsers() : Promise<UserResponse[] | void> {
 //METHOD TO GET USER PROFILE
 export async function GetProfile() : Promise<UserResponse | void> {
     try{
-        const response=await api.get('/users/getProfile')
+        const response=await api.get<UserResponse>('/users/getProfile')
         console.log(response.data)
         return response.data
 
