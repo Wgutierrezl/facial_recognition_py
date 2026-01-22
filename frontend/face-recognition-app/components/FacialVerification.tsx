@@ -1,163 +1,156 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal } from 'react-native';
-import { Scan, CheckCircle, XCircle, Loader } from 'lucide-react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { CheckCircle, XCircle } from 'lucide-react-native';
 import { styles } from '@/styles/FacialVerificationStyles';
 
 interface FacialVerificationProps {
   actionType: 'entrada' | 'salida';
-  onSuccess: () => void;
+  onSuccess: (facialFile: any) => void;
   onCancel: () => void;
 }
 
-type VerificationState = 'scanning' | 'success' | 'error';
+type VerificationState = 'scanning' | 'success' | 'error' | 'loading';
 
 const FacialVerification: React.FC<FacialVerificationProps> = ({
   actionType,
   onSuccess,
   onCancel,
 }) => {
-  const [verificationState, setVerificationState] = useState<VerificationState>('scanning');
-  const [progress, setProgress] = useState(0);
+  const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [state, setState] = useState<VerificationState>('scanning');
 
+  // 👉 pedir permiso apenas se monta
   useEffect(() => {
-    // Simulación de escaneo facial
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
+    if (!permission?.granted) {
+      requestPermission();
+    }
+  }, []);
 
-    const verificationTimer = setTimeout(() => {
-      // Simulación: 90% de probabilidad de éxito
-      const isSuccess = Math.random() > 0.1;
-      setVerificationState(isSuccess ? 'success' : 'error');
+  // 👉 capturar rostro automáticamente
+  useEffect(() => {
+    if (!permission?.granted) return;
 
-      if (isSuccess) {
-        setTimeout(() => {
-          onSuccess();
-        }, 1500);
-      }
+    const timer = setTimeout(() => {
+      captureFace();
     }, 2000);
 
-    return () => {
-      clearInterval(progressInterval);
-      clearTimeout(verificationTimer);
-    };
-  }, [onSuccess]);
+    return () => clearTimeout(timer);
+  }, [permission]);
 
-  const handleRetry = () => {
-    setVerificationState('scanning');
-    setProgress(0);
+  const captureFace = async () => {
+    try {
+      if (!cameraRef.current) return;
+
+      setState('loading');
+
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.7,
+        base64: false,
+      });
+
+      // 🔥 AQUÍ VA TU BACKEND (Rekognition)
+      // const formData = new FormData();
+      // formData.append('image', {
+      //   uri: photo.uri,
+      //   name: 'face.jpg',
+      //   type: 'image/jpeg',
+      // } as any);
+      // await api.verifyFace(formData, actionType);
+
+      // 👉 simulamos éxito y devolvemos el objeto photo
+      setTimeout(() => {
+        setState('success');
+        setTimeout(() => onSuccess(photo), 1200);
+      }, 1000);
+
+    } catch (error) {
+      setState('error');
+    }
   };
 
+  // ❌ sin permisos
+  if (!permission || !permission.granted) {
+    return (
+      <Modal visible transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.container}>
+            <Text style={{ color: 'white', marginBottom: 20 }}>
+              Se requiere acceso a la cámara
+            </Text>
+
+            <TouchableOpacity onPress={requestPermission}>
+              <Text style={{ color: '#60A5FA' }}>Permitir cámara</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={onCancel} style={{ marginTop: 20 }}>
+              <Text style={{ color: '#9CA3AF' }}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   return (
-    <Modal
-      visible={true}
-      transparent={true}
-      animationType="fade"
-      onRequestClose={onCancel}
-    >
+    <Modal visible transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.container}>
-          {/* Estado: Escaneando */}
-          {verificationState === 'scanning' && (
-            <View style={styles.scanningContainer}>
-              <View style={styles.scanFrameContainer}>
-                <View style={styles.scanFrame}>
-                  <Scan size={128} color="#60A5FA" />
-                  <View 
-                    style={[
-                      styles.progressBar,
-                      { width: `${progress}%` }
-                    ]}
-                  />
-                </View>
+
+          {/* ESCANEANDO */}
+          {state === 'scanning' && (
+            <View style={styles.scanFrameContainer}>
+              <View style={styles.scanFrame}>
+                <CameraView
+                  ref={cameraRef}
+                  facing="front"
+                  style={{ width: '100%', height: '100%' }}
+                />
               </View>
 
-              <View style={styles.scanningCard}>
-                <Text style={styles.scanningTitle}>
-                  Verificación Facial Obligatoria
-                </Text>
-                <Text style={styles.scanningSubtitle}>
-                  Escaneando rostro para marcar {actionType}...
-                </Text>
-                <View style={styles.progressContainer}>
-                  <Loader size={20} color="#9CA3AF" />
-                  <Text style={styles.progressText}>Progreso: {progress}%</Text>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Estado: Éxito */}
-          {verificationState === 'success' && (
-            <View style={styles.successContainer}>
-              <View style={styles.successIconBox}>
-                <CheckCircle size={128} color="#FFFFFF" />
-              </View>
-
-              <View style={styles.successCard}>
-                <Text style={styles.successTitle}>
-                  ✓ Rostro Verificado
-                </Text>
-                <Text style={styles.successSubtitle}>
-                  Identidad confirmada con éxito
-                </Text>
-                <Text style={styles.successDescription}>
-                  Registrando {actionType === 'entrada' ? 'entrada' : 'salida'}...
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {/* Estado: Error */}
-          {verificationState === 'error' && (
-            <View style={styles.errorContainer}>
-              <View style={styles.errorIconBox}>
-                <XCircle size={128} color="#FFFFFF" />
-              </View>
-
-              <View style={styles.errorCard}>
-                <Text style={styles.errorTitle}>
-                  ✗ Rostro No Reconocido
-                </Text>
-                <Text style={styles.errorSubtitle}>
-                  No se pudo verificar tu identidad
-                </Text>
-
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    onPress={onCancel}
-                    style={styles.cancelButton}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancelar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={handleRetry}
-                    style={styles.retryButton}
-                  >
-                    <Text style={styles.retryButtonText}>Reintentar</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Botón cancelar (solo durante escaneo) */}
-          {verificationState === 'scanning' && (
-            <TouchableOpacity
-              onPress={onCancel}
-              style={styles.bottomCancelButton}
-            >
-              <Text style={styles.bottomCancelButtonText}>
-                Cancelar Verificación
+              <Text style={styles.scanningTitle}>
+                Verificando rostro para marcar {actionType}
               </Text>
-            </TouchableOpacity>
+            </View>
           )}
+
+          {/* CARGANDO */}
+          {state === 'loading' && (
+            <View style={{ alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#60A5FA" />
+              <Text style={{ color: 'white', marginTop: 10 }}>
+                Verificando identidad...
+              </Text>
+            </View>
+          )}
+
+          {/* ÉXITO */}
+          {state === 'success' && (
+            <View style={styles.successContainer}>
+              <CheckCircle size={120} color="#22C55E" />
+              <Text style={styles.successTitle}>Rostro verificado</Text>
+            </View>
+          )}
+
+          {/* ERROR */}
+          {state === 'error' && (
+            <View style={styles.errorContainer}>
+              <XCircle size={120} color="#EF4444" />
+              <Text style={styles.errorTitle}>Rostro no reconocido</Text>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={onCancel}>
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => setState('scanning')}>
+                  <Text style={styles.retryButtonText}>Reintentar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
         </View>
       </View>
     </Modal>

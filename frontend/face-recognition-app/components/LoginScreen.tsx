@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-nativ
 import { useAppContext, User } from '@/components/context/AppContext';
 import { LogIn, Scan, UserPlus } from 'lucide-react-native';
 import { styles } from '@/styles/LoginScreenStyles';
+import FacialVerification from './FacialVerification';
 
 interface LoginScreenProps {
   onLogin: (user: User) => void;
@@ -14,7 +15,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showFacialLogin, setShowFacialLogin] = useState(false);
+  const [showFacialVerification, setShowFacialVerification] = useState(false);
 
   const handleTraditionalLogin = () => {
     const user = loginUser(email, password);
@@ -26,21 +27,36 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
   };
 
   const handleFacialLogin = () => {
-    // Simulación de reconocimiento facial
-    setShowFacialLogin(true);
-    setTimeout(() => {
-      const user = loginWithFacial('facial-data-1');
-      if (user) {
-        onLogin(user);
-      } else {
-        setError('Rostro no reconocido');
-        setShowFacialLogin(false);
-      }
-    }, 2000);
+    setShowFacialVerification(true);
+  };
+
+  const handleFacialVerificationSuccess = (facialFileData: any) => {
+    // facialFileData es el archivo/objeto devuelto por el componente FacialVerification
+    const user = loginWithFacial(facialFileData);
+    if (user) {
+      onLogin(user);
+    } else {
+      setError('Rostro no reconocido');
+      setShowFacialVerification(false);
+    }
+  };
+
+  const handleFacialVerificationCancel = () => {
+    setShowFacialVerification(false);
+    setError('');
   };
 
   return (
     <View style={styles.container}>
+      {/* Componente de verificación facial */}
+      {showFacialVerification && (
+        <FacialVerification
+          actionType="entrada"
+          onSuccess={handleFacialVerificationSuccess}
+          onCancel={handleFacialVerificationCancel}
+        />
+      )}
+
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -75,7 +91,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
             </View>
           ) : null}
 
-          {!showFacialLogin ? (
+          {!showFacialVerification && (
             <>
               {/* Login Tradicional */}
               <View style={styles.formContainer}>
@@ -140,16 +156,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
                 </Text>
               </View>
             </>
-          ) : (
-            <View style={styles.scanningContainer}>
-              <View style={styles.scanningIconBox}>
-                <Scan size={64} color="#2563EB" />
-              </View>
-              <Text style={styles.scanningTitle}>
-                Escaneando Rostro...
-              </Text>
-              <Text style={styles.scanningSubtitle}>Mantén tu rostro frente a la cámara</Text>
-            </View>
           )}
         </View>
 
