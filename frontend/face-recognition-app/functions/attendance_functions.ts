@@ -10,7 +10,7 @@ export async function RegisterEntrance(data:AttendanceEntrance)  : Promise<Atten
         form.append('place_id', data.place_id.toString());
         form.append('image', data.file)
 
-        const response=await api.post('/attendance/registerEntrance', form,{
+        const response=await api.post<AttendanceResponse>('/attendance/registerEntrance', form,{
             headers:{
                 'Content-Type':'multipart/form-data'
             }
@@ -38,7 +38,7 @@ export async function RegisterExit(data:AttendanceExit)  : Promise<AttendanceRes
 
         form.append('image', data.file)
 
-        const response=await api.post('/attendance/registerExit', form,{
+        const response=await api.post<AttendanceResponse>('/attendance/registerExit', form,{
             headers:{
                 'Content-Type':'multipart/form-data'
             }
@@ -64,7 +64,7 @@ export async function GetMyAttendance()  : Promise<AttendanceResponse[] | void>{
     try{
         
 
-        const response=await api.get('/attendance/getMyAttendance')
+        const response=await api.get<AttendanceResponse[]>('/attendance/getMyAttendance')
         console.log(response.data);
         return response.data;
 

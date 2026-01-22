@@ -5,7 +5,7 @@ import { RoleCreate, RoleResponse } from "./models/role";
 
 export async function CreateRole(data:RoleCreate) : Promise<RoleResponse | void> {
     try{
-        const response=await api.post('/roles/createRole', data)
+        const response=await api.post<RoleResponse>('/roles/createRole', data)
         console.log(response.data);
         return response.data;
 
@@ -24,7 +24,7 @@ export async function CreateRole(data:RoleCreate) : Promise<RoleResponse | void>
 
 export async function GetAllRoles() : Promise<RoleResponse[] | void> {
     try{
-        const response=await api.get('/roles/getAllRoles')
+        const response=await api.get<RoleResponse[]>('/roles/getAllRoles')
         console.log(response.data);
         return response.data;
 
