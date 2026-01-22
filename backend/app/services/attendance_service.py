@@ -32,8 +32,10 @@ class AttendanceService:
             # we ask if the user check the entrance
             existing_entrance=self.attendance_repository.get_actual_attendance_user_id(user_id)
 
-            if existing_entrance.entry_time:
-                raise ValueError(f'you cant check the entrance, because you check at {existing_entrance.entry_time}')
+            if existing_entrance and existing_entrance.entry_time:
+                raise ValueError(
+                    f'you cant check the entrance, because you checked at {existing_entrance.entry_time}'
+                )
             
             attendance_create=Attendance(
                 user_id=user_id,

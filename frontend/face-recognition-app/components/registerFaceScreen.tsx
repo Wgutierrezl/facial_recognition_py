@@ -1,6 +1,6 @@
 import { View, TextInput, Button, Alert } from "react-native";
 import CameraComponent from "./camera";
-import { RegisterUser } from "@/functions/functions";
+import { RegisterUser } from "@/functions/users_functions";
 import { useState } from "react";
 
 export default function RegisterFaceScreen() {
