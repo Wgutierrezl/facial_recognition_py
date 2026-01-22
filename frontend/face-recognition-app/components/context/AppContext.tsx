@@ -1,36 +1,11 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Tipos
-export type UserRole = 'employee' | 'admin';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: UserRole;
-  area: string;
-  sede: string;
-  facialImage?: string;
-  status: 'dentro' | 'fuera';
-}
-
-export interface Place {
-  id: string;
-  name: string;
-}
-
-export interface Area {
-  id: string;
-  name: string;
-}
-
 export interface Attendance {
-  id: string;
+  id: number;
   userId: string;
   userName: string;
   userArea: string;
-  placeId: string;
+  placeId: number;
   placeName: string;
   date: string;
   entryTime?: string;
@@ -83,8 +58,7 @@ const initialUsers: User[] = [
     role: 'employee',
     area: 'Desarrollo',
     sede: 'Oficina Central',
-    facialImage: 'facial-data-1',
-    status: 'fuera',
+    facialImage: 'facial-data-1'
   },
   {
     id: 'user-2',
@@ -93,8 +67,7 @@ const initialUsers: User[] = [
     password: 'admin',
     role: 'admin',
     area: 'Recursos Humanos',
-    sede: 'Oficina Central',
-    status: 'fuera',
+    sede: 'Oficina Central'
   },
 ];
 
