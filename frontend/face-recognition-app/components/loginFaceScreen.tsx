@@ -1,6 +1,6 @@
 import { View, Text, Alert } from "react-native";
 import CameraComponent from "./camera";
-import { GetUserByFaceId } from "@/functions/functions";
+import { GetUserByFaceId } from "@/functions/users_functions";
 
 export default function LoginFaceScreen({ onLogin }: any) {
   const handleCapture = async (image: any) => {
