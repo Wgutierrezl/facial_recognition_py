@@ -1,5 +1,7 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import StorageService from "@/functions/storage";
+import { Alert } from "react-native";
 
 import { AreaResponse } from "@/functions/models/area";
 import { PlaceResponse } from "@/functions/models/place";
@@ -69,7 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await RegisterUser(userData);
       return response ?? null;
     } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
       return null;
     }
   };
@@ -82,6 +84,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!session) return null;
 
+      await StorageService.saveToken(session.token)
+      await StorageService.saveRole(session.rol)
+      await StorageService.saveUserId(session.user_id)
+
       const profile = await GetProfile();
       if (profile) {
         setCurrentUser(profile);
@@ -90,7 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return null;
     } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
       return null;
     }
   };
@@ -103,6 +109,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!response) return null;
 
+      await StorageService.saveToken(response.token)
+      await StorageService.saveRole(response.rol)
+      await StorageService.saveUserId(response.user_id)
+
       const profile = await GetProfile();
       if (profile) {
         setCurrentUser(profile);
@@ -111,7 +121,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return null;
     } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
       return null;
     }
   };

@@ -12,7 +12,7 @@ export async function CreateRole(data:RoleCreate) : Promise<RoleResponse | void>
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','credenciales invalidas','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
         
@@ -31,7 +31,7 @@ export async function GetAllRoles() : Promise<RoleResponse[] | void> {
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','aun no hay roles en el sistema','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
         

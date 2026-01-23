@@ -23,8 +23,12 @@ export interface UserCreate{
     file: any;
 }
 
-export interface LogUser{
-    image:any;
+export interface LogUser {
+  image: {
+    uri: string;
+    name: string;
+    type: string;
+  };
 }
 
 export interface LoginDTO{

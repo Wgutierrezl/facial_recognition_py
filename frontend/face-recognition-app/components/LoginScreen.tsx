@@ -1,24 +1,29 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { useAppContext, User } from '@/components/context/AdminContext';
+import { useAuthContext } from './context/AuthContext';
 import { LogIn, Scan, UserPlus } from 'lucide-react-native';
 import { styles } from '@/styles/LoginScreenStyles';
 import FacialVerification from './FacialVerification';
+import { LoginDTO, LogUser, UserResponse } from '@/functions/models/user';
 
 interface LoginScreenProps {
-  onLogin: (user: User) => void;
+  onLogin: (user: UserResponse) => void;
   onNavigateToRegister: () => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister }) => {
-  const { loginUser, loginWithFacial } = useAppContext();
+  const { loginUser, loginWithFacial } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showFacialVerification, setShowFacialVerification] = useState(false);
 
-  const handleTraditionalLogin = () => {
-    const user = loginUser(email, password);
+  const handleTraditionalLogin = async () => {
+    const data:LoginDTO={
+      email:email,
+      password:password
+    }
+    const user = await loginUser(data);
     if (user) {
       onLogin(user);
     } else {
@@ -30,9 +35,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
     setShowFacialVerification(true);
   };
 
-  const handleFacialVerificationSuccess = (facialFileData: any) => {
+  const handleFacialVerificationSuccess = async (data: LogUser) => {
     // facialFileData es el archivo/objeto devuelto por el componente FacialVerification
-    const user = loginWithFacial(facialFileData);
+    const user = await loginWithFacial(data);
     if (user) {
       onLogin(user);
     } else {

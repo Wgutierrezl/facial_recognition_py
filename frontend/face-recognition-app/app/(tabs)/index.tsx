@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppProvider, useAppContext, User } from '../../components/context/AdminContext';
+import { useAuthContext, AuthProvider } from '@/components/context/AuthContext';
 import LoginScreen from '@/components/LoginScreen';
 import AdminDashboard from '@/components/AdminDashboard';
 import RegisterScreen from '@/components/RegisterScreen';
@@ -7,6 +7,9 @@ import EmployeeDashboard from '@/components/EmployeeDashboard';
 import SiteSelection from '@/components/SiteSelection';
 import FacialVerification from '@/components/FacialVerification';
 import EmployeeHistory from '@/components/EmployeeHistory';
+import { UserResponse, LogUser } from '@/functions/models/user';
+import StorageService from '@/functions/storage';
+import Swal from 'sweetalert2';
 
 type Screen =
   | 'login'
@@ -20,13 +23,14 @@ type Screen =
 type ActionType = 'entrada' | 'salida';
 
 function AppContent() {
-  const { currentUser, logout, markEntry, markExit } = useAppContext();
+  const { currentUser, logout, loginWithFacial } = useAuthContext();
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
-  const handleLogin = (user: User) => {
-    if (user.role === 'employee') {
+  const handleLogin = async () => {
+    const role=await StorageService.getRole()
+    if (role === 'employee') {
       setCurrentScreen('employeeDashboard');
     } else {
       setCurrentScreen('adminDashboard');
@@ -53,17 +57,34 @@ function AppContent() {
     setCurrentScreen('facialVerification');
   };
 
-  const handleFacialSuccess = () => {
-    if (currentUser && pendingAction) {
-      if (pendingAction === 'entrada' && selectedPlaceId) {
-        markEntry(currentUser.id, selectedPlaceId);
-      } else if (pendingAction === 'salida') {
-        markExit(currentUser.id);
+  const handleFacialSuccess = async (data: LogUser) => {
+    try {
+      // Llamar al login facial con la imagen capturada
+      const user = await loginWithFacial(data);
+      
+      if (user) {
+        // Obtener el rol guardado para navegar a la pantalla correcta
+        const role = await StorageService.getRole();
+        if (role === 'employee') {
+          setCurrentScreen('employeeDashboard');
+        } else {
+          setCurrentScreen('adminDashboard');
+        }
+        setPendingAction(null);
+        setSelectedPlaceId(null);
+      } else {
+        Swal.fire('Error', 'No se pudo autenticar con el rostro', 'error');
+        setPendingAction(null);
+        setSelectedPlaceId(null);
+        setCurrentScreen('employeeDashboard');
       }
+    } catch (error: any) {
+      console.error('Error en facial login:', error);
+      Swal.fire('Error', 'Error al procesar el reconocimiento facial', 'error');
+      setPendingAction(null);
+      setSelectedPlaceId(null);
+      setCurrentScreen('employeeDashboard');
     }
-    setPendingAction(null);
-    setSelectedPlaceId(null);
-    setCurrentScreen('employeeDashboard');
   };
 
   const handleFacialCancel = () => {
@@ -143,9 +164,9 @@ function AppContent() {
 
 function App() {
   return (
-    <AppProvider>
+    <AuthProvider>
       <AppContent />
-    </AppProvider>
+    </AuthProvider>
   );
 }
 
