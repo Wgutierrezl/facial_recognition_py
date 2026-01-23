@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { useAppContext, User } from '@/components/context/AppContext';
+import { useAppContext, User } from '@/components/context/AdminContext';
 import { LogIn, Scan, UserPlus } from 'lucide-react-native';
 import { styles } from '@/styles/LoginScreenStyles';
 import FacialVerification from './FacialVerification';

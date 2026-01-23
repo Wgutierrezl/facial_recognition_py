@@ -79,3 +79,41 @@ export async function GetMyAttendance()  : Promise<AttendanceResponse[] | void>{
     }
     
 }
+
+//METHOD TO GET ATTENDANCE BY USER ID
+export async function GetAttendanceByUserId(user_id:string)  : Promise<AttendanceResponse[] | void>{
+    try{
+        const response=await api.get<AttendanceResponse[]>(`/attendance/getAttendanceByUserId/${user_id}`)
+        console.log(response.data);
+        return response.data;
+
+    }catch(error:any){
+        const statusCode=error.response.status
+        if(statusCode===404 || statusCode===400){
+            Swal.fire('informacion', 'el usuario aun no ha registrado asistencias','info')
+            return ;
+        }
+
+        throw error;
+    }
+    
+}
+
+//METHOD TO GET ALL ATTENDANCE
+export async function GetAllAttendance()  : Promise<AttendanceResponse[] | void>{
+    try{
+        const response=await api.get<AttendanceResponse[]>(`/attendance/getAllAttendance`)
+        console.log(response.data);
+        return response.data;
+
+    }catch(error:any){
+        const statusCode=error.response.status
+        if(statusCode===404 || statusCode===400){
+            Swal.fire('informacion', 'aun no hay registro de asistencias','info')
+            return ;
+        }
+
+        throw error;
+    }
+    
+}

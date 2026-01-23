@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useAppContext, User } from '@/components/context/AppContext';
+import { useAppContext, User } from '@/components/context/AdminContext';
 import { LogOut, Clock, History, MapPin, CheckCircle, XCircle, Briefcase, LogIn as LogInIcon, AlertTriangle } from 'lucide-react-native';
 import { styles } from '@/styles/EmployeeDashboardStyles';
 
