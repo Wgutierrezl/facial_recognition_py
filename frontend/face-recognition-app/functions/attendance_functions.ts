@@ -22,7 +22,7 @@ export async function RegisterEntrance(data:AttendanceEntrance)  : Promise<Atten
     }catch(error:any){
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
-            Swal.fire('informacion', 'ya has marcado entrada, no puedes volver a marcar','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 
@@ -50,7 +50,7 @@ export async function RegisterExit(data:AttendanceExit)  : Promise<AttendanceRes
     }catch(error:any){
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
-            Swal.fire('informacion', 'ya has marcado salida, no puedes volver a marcar','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 
@@ -71,7 +71,7 @@ export async function GetMyAttendance()  : Promise<AttendanceResponse[] | void>{
     }catch(error:any){
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
-            Swal.fire('informacion', 'aun no has empezado a marcar entrada y salida','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 
@@ -90,7 +90,7 @@ export async function GetAttendanceByUserId(user_id:string)  : Promise<Attendanc
     }catch(error:any){
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
-            Swal.fire('informacion', 'el usuario aun no ha registrado asistencias','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 
@@ -109,7 +109,7 @@ export async function GetAllAttendance()  : Promise<AttendanceResponse[] | void>
     }catch(error:any){
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
-            Swal.fire('informacion', 'aun no hay registro de asistencias','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 

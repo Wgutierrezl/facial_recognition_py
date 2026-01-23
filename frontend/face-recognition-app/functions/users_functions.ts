@@ -32,7 +32,7 @@ export async function RegisterUser(data:UserCreate) : Promise<UserResponse | voi
 export async function GetUserByFaceId(data:LogUser) : Promise<SessionDTO | void> {
     try{
         const form=new FormData();
-        form.append('image',data.image);
+        form.append('image',data.image as any);
 
         const response=await api.post<SessionDTO>('/users/searchUserByFace',form,{
             headers:{
@@ -58,7 +58,7 @@ export async function LoginManually(data:LoginDTO) : Promise<SessionDTO | void> 
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','credenciales invalidad','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 
@@ -78,7 +78,7 @@ export async function GetAllUsers() : Promise<UserResponse[] | void> {
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','aun no hay usuarios en el sistema','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 
@@ -98,7 +98,7 @@ export async function GetProfile() : Promise<UserResponse | void> {
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','credenciales invalidas','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
 

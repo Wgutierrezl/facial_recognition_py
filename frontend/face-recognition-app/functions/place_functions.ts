@@ -13,7 +13,7 @@ export async function CreatePlace(data:PlaceCreate) : Promise<PlaceResponse | vo
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','credenciales invalidas','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
         
@@ -32,7 +32,7 @@ export async function GetAllPlaces() : Promise<PlaceResponse[] | void> {
     }catch(error:any){
         const statusCode=error.response.statusCode
         if(statusCode===401 || statusCode===404){
-            Swal.fire('informacion','aun no hay sedes en el sistema','info')
+            console.log(`ha ocurrido un error ${error.message}`)
             return ;
         }
         
