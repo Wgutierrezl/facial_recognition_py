@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppProvider, useAppContext, User } from '../../components/context/AppContext';
+import { AppProvider, useAppContext, User } from '../../components/context/AdminContext';
 import LoginScreen from '@/components/LoginScreen';
 import AdminDashboard from '@/components/AdminDashboard';
 import RegisterScreen from '@/components/RegisterScreen';

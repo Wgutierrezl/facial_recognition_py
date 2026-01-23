@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
-import { useAppContext, User } from '@/components/context/AppContext';
+import { useAppContext, User } from '@/components/context/AdminContext';
 import {
   LogOut,
   Users,

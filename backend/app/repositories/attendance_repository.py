@@ -46,5 +46,13 @@ class AttendanceRepository:
         return self.db.query(Attendance).filter(Attendance.user_id==user_id,
                                                 Attendance.work_date==date.today()).first()
     
+    def get_all_attendance(self) ->List[AttendanceResponse]:
+        return (
+            self.db.query(Attendance)
+                .options(joinedload(Attendance.user),
+                        joinedload(Attendance.place))
+                .all()
+        )
+    
     
     

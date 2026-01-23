@@ -110,8 +110,13 @@ class AttendanceService:
         
         return attendance
     
+    def get_all_attendance(self) -> List[AttendanceResponse]:
+        attendances=self.attendance_repository.get_all_attendance()
 
-
+        if not attendances:
+            return None
+        
+        return attendances
 
 
 
