@@ -117,6 +117,312 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111827',
   },
+  
+  // ============================================
+  // GESTIÓN DE SEDES Y ÁREAS
+  // ============================================
+  managementCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    padding: 24,
+    marginBottom: 24,
+  },
+  managementCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  managementCardTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  managementCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  addIconButton: {
+    padding: 8,
+    backgroundColor: '#dbeafe',
+    borderRadius: 8,
+  },
+  itemsContainer: {
+    gap: 8,
+  },
+  placeItem: {
+    padding: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  placeItemText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  areaItem: {
+    padding: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  areaItemText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  addFormContainer: {
+    marginTop: 16,
+    gap: 8,
+  },
+  formInput: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderColor: '#d1d5db',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    color: '#111827',
+  },
+  formButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  formSubmitButton: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#2563eb',
+    borderRadius: 8,
+  },
+  formSubmitButtonText: {
+    color: '#ffffff',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  formCancelButton: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 8,
+  },
+  formCancelButtonText: {
+    color: '#374151',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  
+  // ============================================
+  // FILTROS AVANZADOS
+  // ============================================
+  filterCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    padding: 24,
+    marginBottom: 32,
+  },
+  filterHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 24,
+  },
+  filterTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  filterFields: {
+    gap: 16,
+    marginBottom: 16,
+  },
+  filterField: {
+    marginBottom: 16,
+  },
+  filterFieldLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  filterPickerButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderColor: '#d1d5db',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+  },
+  filterPickerButtonTextActive: {
+    color: '#111827',
+  },
+  filterPickerButtonTextPlaceholder: {
+    color: '#9ca3af',
+  },
+  filterDropdown: {
+    borderColor: '#d1d5db',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 8,
+    backgroundColor: '#ffffff',
+  },
+  filterDropdownItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 1,
+  },
+  filterDropdownItemText: {
+    color: '#111827',
+  },
+  filterDateInput: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderColor: '#d1d5db',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    color: '#111827',
+  },
+  filterExportButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#16a34a',
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  filterExportButtonText: {
+    color: '#ffffff',
+    fontWeight: '500',
+  },
+  
+  // ============================================
+  // LISTA DE ASISTENCIAS
+  // ============================================
+  attendanceList: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    overflow: 'hidden',
+  },
+  attendanceListHeaderSection: {
+    padding: 24,
+    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 1,
+  },
+  attendanceListHeaderTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  attendanceEmptyState: {
+    paddingHorizontal: 24,
+    paddingVertical: 48,
+    alignItems: 'center',
+  },
+  attendanceEmptyStateText: {
+    color: '#6b7280',
+  },
+  attendanceItemsContainer: {
+    // contenedor para los items
+  },
+  attendanceItemContainer: {
+    padding: 24,
+  },
+  attendanceItemContainerWithBorder: {
+    padding: 24,
+    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 1,
+  },
+  attendanceItemUser: {
+    marginBottom: 12,
+  },
+  attendanceItemUserName: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  attendanceItemUserArea: {
+    fontSize: 11,
+    color: '#4b5563',
+  },
+  attendanceItemInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  attendanceItemPlace: {
+    fontSize: 13,
+    color: '#4b5563',
+  },
+  attendanceItemDate: {
+    fontSize: 13,
+    color: '#4b5563',
+  },
+  attendanceItemTimes: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  attendanceItemTimeBlock: {
+    gap: 4,
+  },
+  attendanceItemTimeLabel: {
+    fontSize: 11,
+    color: '#4b5563',
+  },
+  attendanceItemTimeValue: {
+    fontSize: 13,
+    color: '#111827',
+  },
+  attendanceItemBadgeCompleted: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+    backgroundColor: '#dcfce7',
+    alignSelf: 'flex-start',
+  },
+  attendanceItemBadgeCompletedText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#166534',
+  },
+  attendanceItemBadgeInProgress: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+    backgroundColor: '#fef3c7',
+    alignSelf: 'flex-start',
+  },
+  attendanceItemBadgeInProgressText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#92400e',
+  },
+  
+  // ============================================
+  // ESTILOS LEGACY (mantener por compatibilidad)
+  // ============================================
   section: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -320,14 +626,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
-  },
-  attendanceItemPlace: {
-    fontSize: 13,
-    color: '#4b5563',
-  },
-  attendanceItemDate: {
-    fontSize: 13,
-    color: '#4b5563',
   },
   attendanceTimesContainer: {
     flexDirection: 'row',
