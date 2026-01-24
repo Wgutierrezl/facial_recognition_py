@@ -7,6 +7,7 @@ export interface PlaceCreate{
 
 export interface PlaceResponse{
     id:number
+    name: string
     latitude: string
     longitude: string
     radius_meters: number

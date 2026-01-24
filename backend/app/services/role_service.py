@@ -1,4 +1,4 @@
-from ast import List
+from typing import List
 from app.repositories.role_repository import RoleRepository
 from app.models.role import Role
 from app.schemas.role_schema import RoleCreated, RoleResponse

@@ -1,6 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
-import { useAppContext, User } from '@/components/context/AdminContext';
+import { useAdminContext } from './context/AdminContext';
+import { useAuthContext } from './context/AuthContext';
+import { AreaCreate, AreaResponse } from '@/functions/models/area';
+import { PlaceCreate, PlaceResponse } from '@/functions/models/place';
+import { UserResponse } from '@/functions/models/user';
 import {
   LogOut,
   Users,
@@ -14,14 +18,18 @@ import {
   TrendingUp,
 } from 'lucide-react-native';
 import { styles } from '@/styles/AdminDashboardStyles';
+import { AttendanceResponse } from '@/functions/models/attendance';
+import { GetAllAttendance } from '@/functions/attendance_functions';
 
 interface AdminDashboardProps {
-  user: User;
+  user: UserResponse;
   onLogout: () => void;
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
-  const { getAllAttendances, users, places, areas, addPlace, addArea } = useAppContext();
+  const { getAllAttendances, addPlace, addArea } = useAdminContext();
+  const [allAttendances, setAllAttendances] = useState<AttendanceResponse[]>([])
+  const {users, places, areas} = useAuthContext()
   const [filterSede, setFilterSede] = useState('');
   const [filterArea, setFilterArea] = useState('');
   const [filterEmployee, setFilterEmployee] = useState('');
@@ -35,38 +43,51 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const [showAreaPicker, setShowAreaPicker] = useState(false);
   const [showEmployeePicker, setShowEmployeePicker] = useState(false);
 
-  const allAttendances = getAllAttendances();
-  const employees = users.filter((u) => u.role === 'employee');
+  useEffect(()=> {
+    const loadData=async() =>{
+      try {
+        const data = await getAllAttendances();
+        setAllAttendances(data);
+      } catch (error) {
+        Alert.alert('Error', 'No se pudieron cargar las asistencias');
+      } finally {
+        setAllAttendances([]);
+      }
+    }
+    loadData()
+  },[])
+
+  const employees = users.filter((u) => u.role.name === 'employee');
 
   const filteredAttendances = useMemo(() => {
     let filtered = [...allAttendances];
 
     if (filterSede) {
-      filtered = filtered.filter((att) => att.placeName === filterSede);
+      filtered = filtered.filter((att) => att.place.name === filterSede);
     }
 
     if (filterArea) {
-      filtered = filtered.filter((att) => att.userArea === filterArea);
+      filtered = filtered.filter((att) => att.user.area.name === filterArea);
     }
 
     if (filterEmployee) {
-      filtered = filtered.filter((att) => att.userName === filterEmployee);
+      filtered = filtered.filter((att) => att.user.name === filterEmployee);
     }
 
     if (filterDateStart) {
-      filtered = filtered.filter((att) => att.date >= filterDateStart);
+      filtered = filtered.filter((att) => att.work_date.toString() >= filterDateStart);
     }
 
     if (filterDateEnd) {
-      filtered = filtered.filter((att) => att.date <= filterDateEnd);
+      filtered = filtered.filter((att) => att.work_date.toString() <= filterDateEnd);
     }
 
-    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return filtered.sort((a, b) => new Date(b.work_date).getTime() - new Date(a.work_date).getTime());
   }, [allAttendances, filterSede, filterArea, filterEmployee, filterDateStart, filterDateEnd]);
 
   const stats = useMemo(() => {
     const totalHours = filteredAttendances.reduce(
-      (sum, att) => sum + (att.hoursWorked || 0),
+      (sum, att) => sum + (att.total_hours || 0),
       0
     );
 
@@ -75,21 +96,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       const weekStart = new Date(now);
       weekStart.setDate(now.getDate() - now.getDay());
       weekStart.setHours(0, 0, 0, 0);
-      const attDate = new Date(att.date);
+      const attDate = new Date(att.work_date);
       return attDate >= weekStart;
     });
 
-    const thisWeekHours = thisWeek.reduce((sum, att) => sum + (att.hoursWorked || 0), 0);
+    const thisWeekHours = thisWeek.reduce((sum, att) => sum + (att.total_hours || 0), 0);
 
     const thisMonth = filteredAttendances.filter((att) => {
       const now = new Date();
-      const attDate = new Date(att.date);
+      const attDate = new Date(att.work_date);
       return (
         attDate.getMonth() === now.getMonth() && attDate.getFullYear() === now.getFullYear()
       );
     });
 
-    const thisMonthHours = thisMonth.reduce((sum, att) => sum + (att.hoursWorked || 0), 0);
+    const thisMonthHours = thisMonth.reduce((sum, att) => sum + (att.total_hours || 0), 0);
 
     return {
       totalHours: totalHours.toFixed(1),
@@ -101,7 +122,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
 
   const handleAddPlace = () => {
     if (newPlaceName.trim()) {
-      addPlace(newPlaceName.trim());
+      const data:PlaceCreate={
+        name:newPlaceName,
+        latitude:'',
+        longitude:'',
+        radius_meters:80
+      }
+
+      addPlace(data);
       setNewPlaceName('');
       setShowAddPlace(false);
     }
@@ -109,7 +137,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
 
   const handleAddArea = () => {
     if (newAreaName.trim()) {
-      addArea(newAreaName.trim());
+      const data:AreaCreate={
+        name:newAreaName
+      }
+      addArea(data);
       setNewAreaName('');
       setShowAddArea(false);
     }
@@ -491,30 +522,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   className={`p-6 ${index !== filteredAttendances.length - 1 ? 'border-b border-gray-200' : ''}`}
                 >
                   <View className="mb-3">
-                    <Text className="text-sm font-medium text-gray-900">{attendance.userName}</Text>
-                    <Text className="text-xs text-gray-600">{attendance.userArea}</Text>
+                    <Text className="text-sm font-medium text-gray-900">{attendance.user.name}</Text>
+                    <Text className="text-xs text-gray-600">{attendance.user.area.name}</Text>
                   </View>
                   
                   <View className="flex-row justify-between mb-2">
-                    <Text className="text-sm text-gray-700">{attendance.placeName}</Text>
-                    <Text className="text-sm text-gray-700">{formatDate(attendance.date)}</Text>
+                    <Text className="text-sm text-gray-700">{attendance.place.name}</Text>
+                    <Text className="text-sm text-gray-700">{formatDate(attendance.work_date.toString())}</Text>
                   </View>
 
                   <View className="flex-row justify-between mb-3">
                     <View>
                       <Text className="text-xs text-gray-600">Entrada</Text>
-                      <Text className="text-sm text-gray-900">{attendance.entryTime}</Text>
+                      <Text className="text-sm text-gray-900">{attendance.entry_time}</Text>
                     </View>
                     <View>
                       <Text className="text-xs text-gray-600">Salida</Text>
-                      <Text className="text-sm text-gray-900">{attendance.exitTime || '-'}</Text>
+                      <Text className="text-sm text-gray-900">{attendance.exit_time || '-'}</Text>
                     </View>
                   </View>
 
-                  {attendance.hoursWorked ? (
+                  {attendance.total_hours ? (
                     <View className="px-3 py-1 rounded-full bg-green-100 self-start">
                       <Text className="text-sm font-medium text-green-800">
-                        {attendance.hoursWorked.toFixed(2)}h
+                        {attendance.total_hours.toFixed(2)}h
                       </Text>
                     </View>
                   ) : (
