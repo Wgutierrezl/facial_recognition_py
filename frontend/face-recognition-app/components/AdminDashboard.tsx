@@ -145,7 +145,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   };
 
   const handleExport = () => {
-    // Simulación de exportación
     Alert.alert('Exportar', 'Exportando registros filtrados a Excel/CSV...');
   };
 
@@ -238,53 +237,50 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         </View>
 
         {/* Gestión de Sedes */}
-        <View className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center gap-2">
+        <View style={styles.managementCard}>
+          <View style={styles.managementCardHeader}>
+            <View style={styles.managementCardTitleContainer}>
               <Building2 size={20} color="#4B5563" />
-              <Text className="text-lg font-semibold text-gray-900">Sedes</Text>
+              <Text style={styles.managementCardTitle}>Sedes</Text>
             </View>
             <TouchableOpacity
               onPress={() => setShowAddPlace(true)}
-              className="p-2 bg-blue-100 rounded-lg"
+              style={styles.addIconButton}
             >
               <Plus size={20} color="#2563EB" />
             </TouchableOpacity>
           </View>
-          <View className="space-y-2">
+          <View style={styles.itemsContainer}>
             {places.map((place) => (
-              <View
-                key={place.id}
-                className="p-3 bg-gray-50 rounded-lg mb-2"
-              >
-                <Text className="text-sm font-medium text-gray-900">{place.name}</Text>
+              <View key={place.id} style={styles.placeItem}>
+                <Text style={styles.placeItemText}>{place.name}</Text>
               </View>
             ))}
           </View>
           {showAddPlace && (
-            <View className="mt-4 gap-2">
+            <View style={styles.addFormContainer}>
               <TextInput
                 value={newPlaceName}
                 onChangeText={setNewPlaceName}
                 placeholder="Nombre de la sede"
                 placeholderTextColor="#9CA3AF"
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.formInput}
               />
-              <View className="flex-row gap-2">
+              <View style={styles.formButtonsRow}>
                 <TouchableOpacity
                   onPress={handleAddPlace}
-                  className="flex-1 px-4 py-2 bg-blue-600 rounded-lg"
+                  style={styles.formSubmitButton}
                 >
-                  <Text className="text-white text-center font-medium">Agregar</Text>
+                  <Text style={styles.formSubmitButtonText}>Agregar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
                     setShowAddPlace(false);
                     setNewPlaceName('');
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-200 rounded-lg"
+                  style={styles.formCancelButton}
                 >
-                  <Text className="text-gray-700 text-center font-medium">Cancelar</Text>
+                  <Text style={styles.formCancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -292,53 +288,50 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         </View>
 
         {/* Gestión de Áreas */}
-        <View className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center gap-2">
+        <View style={styles.managementCard}>
+          <View style={styles.managementCardHeader}>
+            <View style={styles.managementCardTitleContainer}>
               <Briefcase size={20} color="#4B5563" />
-              <Text className="text-lg font-semibold text-gray-900">Áreas</Text>
+              <Text style={styles.managementCardTitle}>Áreas</Text>
             </View>
             <TouchableOpacity
               onPress={() => setShowAddArea(true)}
-              className="p-2 bg-blue-100 rounded-lg"
+              style={styles.addIconButton}
             >
               <Plus size={20} color="#2563EB" />
             </TouchableOpacity>
           </View>
-          <View className="space-y-2">
+          <View style={styles.itemsContainer}>
             {areas.map((area) => (
-              <View
-                key={area.id}
-                className="p-3 bg-gray-50 rounded-lg mb-2"
-              >
-                <Text className="text-sm font-medium text-gray-900">{area.name}</Text>
+              <View key={area.id} style={styles.areaItem}>
+                <Text style={styles.areaItemText}>{area.name}</Text>
               </View>
             ))}
           </View>
           {showAddArea && (
-            <View className="mt-4 gap-2">
+            <View style={styles.addFormContainer}>
               <TextInput
                 value={newAreaName}
                 onChangeText={setNewAreaName}
                 placeholder="Nombre del área"
                 placeholderTextColor="#9CA3AF"
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.formInput}
               />
-              <View className="flex-row gap-2">
+              <View style={styles.formButtonsRow}>
                 <TouchableOpacity
                   onPress={handleAddArea}
-                  className="flex-1 px-4 py-2 bg-blue-600 rounded-lg"
+                  style={styles.formSubmitButton}
                 >
-                  <Text className="text-white text-center font-medium">Agregar</Text>
+                  <Text style={styles.formSubmitButtonText}>Agregar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
                     setShowAddArea(false);
                     setNewAreaName('');
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-200 rounded-lg"
+                  style={styles.formCancelButton}
                 >
-                  <Text className="text-gray-700 text-center font-medium">Cancelar</Text>
+                  <Text style={styles.formCancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -346,34 +339,34 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         </View>
 
         {/* Filtros */}
-        <View className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <View className="flex-row items-center gap-2 mb-6">
+        <View style={styles.filterCard}>
+          <View style={styles.filterHeader}>
             <Filter size={20} color="#4B5563" />
-            <Text className="text-lg font-semibold text-gray-900">Filtros Avanzados</Text>
+            <Text style={styles.filterTitle}>Filtros Avanzados</Text>
           </View>
 
-          <View className="gap-4 mb-4">
+          <View style={styles.filterFields}>
             {/* Sede */}
-            <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Sede</Text>
+            <View style={styles.filterField}>
+              <Text style={styles.filterFieldLabel}>Sede</Text>
               <TouchableOpacity
                 onPress={() => setShowSedePicker(!showSedePicker)}
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.filterPickerButton}
               >
-                <Text className={filterSede ? "text-gray-900" : "text-gray-400"}>
+                <Text style={filterSede ? styles.filterPickerButtonTextActive : styles.filterPickerButtonTextPlaceholder}>
                   {filterSede || "Todas las sedes"}
                 </Text>
               </TouchableOpacity>
               {showSedePicker && (
-                <View className="border border-gray-300 rounded-lg mt-2 bg-white">
+                <View style={styles.filterDropdown}>
                   <TouchableOpacity
                     onPress={() => {
                       setFilterSede('');
                       setShowSedePicker(false);
                     }}
-                    className="px-3 py-2 border-b border-gray-200"
+                    style={styles.filterDropdownItem}
                   >
-                    <Text className="text-gray-900">Todas las sedes</Text>
+                    <Text style={styles.filterDropdownItemText}>Todas las sedes</Text>
                   </TouchableOpacity>
                   {places.map((place) => (
                     <TouchableOpacity
@@ -382,9 +375,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                         setFilterSede(place.name);
                         setShowSedePicker(false);
                       }}
-                      className="px-3 py-2 border-b border-gray-200"
+                      style={styles.filterDropdownItem}
                     >
-                      <Text className="text-gray-900">{place.name}</Text>
+                      <Text style={styles.filterDropdownItemText}>{place.name}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -392,26 +385,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
             </View>
 
             {/* Área */}
-            <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Área</Text>
+            <View style={styles.filterField}>
+              <Text style={styles.filterFieldLabel}>Área</Text>
               <TouchableOpacity
                 onPress={() => setShowAreaPicker(!showAreaPicker)}
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.filterPickerButton}
               >
-                <Text className={filterArea ? "text-gray-900" : "text-gray-400"}>
+                <Text style={filterArea ? styles.filterPickerButtonTextActive : styles.filterPickerButtonTextPlaceholder}>
                   {filterArea || "Todas las áreas"}
                 </Text>
               </TouchableOpacity>
               {showAreaPicker && (
-                <View className="border border-gray-300 rounded-lg mt-2 bg-white">
+                <View style={styles.filterDropdown}>
                   <TouchableOpacity
                     onPress={() => {
                       setFilterArea('');
                       setShowAreaPicker(false);
                     }}
-                    className="px-3 py-2 border-b border-gray-200"
+                    style={styles.filterDropdownItem}
                   >
-                    <Text className="text-gray-900">Todas las áreas</Text>
+                    <Text style={styles.filterDropdownItemText}>Todas las áreas</Text>
                   </TouchableOpacity>
                   {areas.map((area) => (
                     <TouchableOpacity
@@ -420,9 +413,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                         setFilterArea(area.name);
                         setShowAreaPicker(false);
                       }}
-                      className="px-3 py-2 border-b border-gray-200"
+                      style={styles.filterDropdownItem}
                     >
-                      <Text className="text-gray-900">{area.name}</Text>
+                      <Text style={styles.filterDropdownItemText}>{area.name}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -430,26 +423,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
             </View>
 
             {/* Empleado */}
-            <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Empleado</Text>
+            <View style={styles.filterField}>
+              <Text style={styles.filterFieldLabel}>Empleado</Text>
               <TouchableOpacity
                 onPress={() => setShowEmployeePicker(!showEmployeePicker)}
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.filterPickerButton}
               >
-                <Text className={filterEmployee ? "text-gray-900" : "text-gray-400"}>
+                <Text style={filterEmployee ? styles.filterPickerButtonTextActive : styles.filterPickerButtonTextPlaceholder}>
                   {filterEmployee || "Todos los empleados"}
                 </Text>
               </TouchableOpacity>
               {showEmployeePicker && (
-                <View className="border border-gray-300 rounded-lg mt-2 bg-white">
+                <View style={styles.filterDropdown}>
                   <TouchableOpacity
                     onPress={() => {
                       setFilterEmployee('');
                       setShowEmployeePicker(false);
                     }}
-                    className="px-3 py-2 border-b border-gray-200"
+                    style={styles.filterDropdownItem}
                   >
-                    <Text className="text-gray-900">Todos los empleados</Text>
+                    <Text style={styles.filterDropdownItemText}>Todos los empleados</Text>
                   </TouchableOpacity>
                   {employees.map((emp) => (
                     <TouchableOpacity
@@ -458,9 +451,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                         setFilterEmployee(emp.name);
                         setShowEmployeePicker(false);
                       }}
-                      className="px-3 py-2 border-b border-gray-200"
+                      style={styles.filterDropdownItem}
                     >
-                      <Text className="text-gray-900">{emp.name}</Text>
+                      <Text style={styles.filterDropdownItemText}>{emp.name}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -468,87 +461,87 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
             </View>
 
             {/* Fechas */}
-            <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Fecha Inicio</Text>
+            <View style={styles.filterField}>
+              <Text style={styles.filterFieldLabel}>Fecha Inicio</Text>
               <TextInput
                 value={filterDateStart}
                 onChangeText={setFilterDateStart}
                 placeholder="YYYY-MM-DD"
                 placeholderTextColor="#9CA3AF"
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.filterDateInput}
               />
             </View>
 
-            <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Fecha Fin</Text>
+            <View style={styles.filterField}>
+              <Text style={styles.filterFieldLabel}>Fecha Fin</Text>
               <TextInput
                 value={filterDateEnd}
                 onChangeText={setFilterDateEnd}
                 placeholder="YYYY-MM-DD"
                 placeholderTextColor="#9CA3AF"
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+                style={styles.filterDateInput}
               />
             </View>
 
             <TouchableOpacity
               onPress={handleExport}
-              className="px-4 py-2 bg-green-600 rounded-lg flex-row items-center justify-center gap-2"
+              style={styles.filterExportButton}
             >
               <Download size={20} color="#FFFFFF" />
-              <Text className="text-white font-medium">Exportar</Text>
+              <Text style={styles.filterExportButtonText}>Exportar</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Lista de Asistencias */}
-        <View className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <View className="p-6 border-b border-gray-200">
-            <Text className="text-lg font-semibold text-gray-900">
+        <View style={styles.attendanceList}>
+          <View style={styles.attendanceListHeaderSection}>
+            <Text style={styles.attendanceListHeaderTitle}>
               Registros de Asistencia ({filteredAttendances.length})
             </Text>
           </View>
 
           {filteredAttendances.length === 0 ? (
-            <View className="px-6 py-12 items-center">
-              <Text className="text-gray-500">No hay registros para mostrar</Text>
+            <View style={styles.attendanceEmptyState}>
+              <Text style={styles.attendanceEmptyStateText}>No hay registros para mostrar</Text>
             </View>
           ) : (
-            <View>
+            <View style={styles.attendanceItemsContainer}>
               {filteredAttendances.map((attendance, index) => (
                 <View
                   key={attendance.id}
-                  className={`p-6 ${index !== filteredAttendances.length - 1 ? 'border-b border-gray-200' : ''}`}
+                  style={index !== filteredAttendances.length - 1 ? styles.attendanceItemContainerWithBorder : styles.attendanceItemContainer}
                 >
-                  <View className="mb-3">
-                    <Text className="text-sm font-medium text-gray-900">{attendance.user.name}</Text>
-                    <Text className="text-xs text-gray-600">{attendance.user.area.name}</Text>
+                  <View style={styles.attendanceItemUser}>
+                    <Text style={styles.attendanceItemUserName}>{attendance.user.name}</Text>
+                    <Text style={styles.attendanceItemUserArea}>{attendance.user.area.name}</Text>
                   </View>
                   
-                  <View className="flex-row justify-between mb-2">
-                    <Text className="text-sm text-gray-700">{attendance.place.name}</Text>
-                    <Text className="text-sm text-gray-700">{formatDate(attendance.work_date.toString())}</Text>
+                  <View style={styles.attendanceItemInfo}>
+                    <Text style={styles.attendanceItemPlace}>{attendance.place.name}</Text>
+                    <Text style={styles.attendanceItemDate}>{formatDate(attendance.work_date.toString())}</Text>
                   </View>
 
-                  <View className="flex-row justify-between mb-3">
-                    <View>
-                      <Text className="text-xs text-gray-600">Entrada</Text>
-                      <Text className="text-sm text-gray-900">{attendance.entry_time}</Text>
+                  <View style={styles.attendanceItemTimes}>
+                    <View style={styles.attendanceItemTimeBlock}>
+                      <Text style={styles.attendanceItemTimeLabel}>Entrada</Text>
+                      <Text style={styles.attendanceItemTimeValue}>{attendance.entry_time}</Text>
                     </View>
-                    <View>
-                      <Text className="text-xs text-gray-600">Salida</Text>
-                      <Text className="text-sm text-gray-900">{attendance.exit_time || '-'}</Text>
+                    <View style={styles.attendanceItemTimeBlock}>
+                      <Text style={styles.attendanceItemTimeLabel}>Salida</Text>
+                      <Text style={styles.attendanceItemTimeValue}>{attendance.exit_time || '-'}</Text>
                     </View>
                   </View>
 
                   {attendance.total_hours ? (
-                    <View className="px-3 py-1 rounded-full bg-green-100 self-start">
-                      <Text className="text-sm font-medium text-green-800">
+                    <View style={styles.attendanceItemBadgeCompleted}>
+                      <Text style={styles.attendanceItemBadgeCompletedText}>
                         {attendance.total_hours.toFixed(2)}h
                       </Text>
                     </View>
                   ) : (
-                    <View className="px-3 py-1 rounded-full bg-yellow-100 self-start">
-                      <Text className="text-sm font-medium text-yellow-800">En progreso</Text>
+                    <View style={styles.attendanceItemBadgeInProgress}>
+                      <Text style={styles.attendanceItemBadgeInProgressText}>En progreso</Text>
                     </View>
                   )}
                 </View>
