@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthContext, AuthProvider } from '@/components/context/AuthContext';
+import { AdminProvider } from '@/components/context/AdminContext';
+import { AttendanceProvider } from '@/components/context/AttendanceContext';
 import LoginScreen from '@/components/LoginScreen';
 import AdminDashboard from '@/components/AdminDashboard';
 import RegisterScreen from '@/components/RegisterScreen';
@@ -165,7 +167,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AdminProvider>
+        <AttendanceProvider>
+          <AppContent />
+        </AttendanceProvider>
+      </AdminProvider>
     </AuthProvider>
   );
 }

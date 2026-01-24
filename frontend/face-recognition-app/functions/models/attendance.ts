@@ -1,4 +1,6 @@
 import { Float } from "react-native/Libraries/Types/CodegenTypes"
+import { UserResponse } from "./user"
+import { PlaceResponse } from "./place"
 
 export interface AttendanceEntrance{
     place_id:number
@@ -11,8 +13,10 @@ export interface AttendanceExit{
 
 export interface AttendanceResponse{
     id: number
-    user_id: string
-    place_id: number
+    /* user_id: string */
+    user: UserResponse
+    /* place_id: number */
+    place: PlaceResponse
     work_date: Date
     entry_time: string
     exit_time: string | null

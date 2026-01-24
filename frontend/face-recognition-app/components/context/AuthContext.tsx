@@ -22,6 +22,7 @@ import {
 
 import { GetAllAreas } from "@/functions/area_functions";
 import { GetAllPlaces } from "@/functions/place_functions";
+import { GetAllUsers } from "@/functions/users_functions";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -31,6 +32,7 @@ interface AuthContextType {
   currentUser: UserResponse | null;
   places: PlaceResponse[];
   areas: AreaResponse[];
+  users: UserResponse[];
 
   registerUser: (userData: UserCreate) => Promise<UserResponse | null>;
   loginUser: (data: LoginDTO) => Promise<UserResponse | null>;
@@ -44,18 +46,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [currentUser, setCurrentUser] = useState<UserResponse | null>(null);
   const [places, setPlaces] = useState<PlaceResponse[]>([]);
   const [areas, setAreas] = useState<AreaResponse[]>([]);
+  const [users, setUsers] = useState<UserResponse[]>([])
 
   // 🔹 Cargar sedes y áreas para el registro
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [placesRes, areasRes] = await Promise.all([
+        const [placesRes, areasRes, userRes] = await Promise.all([
           GetAllPlaces(),
-          GetAllAreas()
+          GetAllAreas(),
+          GetAllUsers()
         ]);
 
         setPlaces(placesRes ?? []);
         setAreas(areasRes ?? []);
+        setUsers(userRes ?? []);
       } catch (error: any) {
         Swal.fire("Error", error.message, "error");
       }
@@ -136,6 +141,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         currentUser,
         places,
         areas,
+        users,
         registerUser,
         loginUser,
         loginWithFacial,

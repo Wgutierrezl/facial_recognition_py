@@ -7,7 +7,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Camera } from 'expo-camera';
+import {
+  CameraView,
+  useCameraPermissions,
+} from 'expo-camera';
 import { CheckCircle, XCircle } from 'lucide-react-native';
 import { styles } from '@/styles/FacialVerificationStyles';
 import { LogUser } from '@/functions/models/user';
@@ -25,52 +28,52 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
   onSuccess,
   onCancel,
 }) => {
-  const cameraRef = useRef<Camera>(null);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const cameraRef = useRef<CameraView>(null);
+
+  // ✅ Usar el hook useCameraPermissions en lugar de la función
+  const [permission, requestPermission] = useCameraPermissions();
 
   const [state, setState] = useState<VerificationState>('scanning');
   const [cameraReady, setCameraReady] = useState(false);
   const [canCapture, setCanCapture] = useState(false);
 
-  // 🔹 Pedir permisos al montar
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
-
-  // 📸 Captura manual usando takePictureAsync
+  // 📸 Captura manual
   const captureFace = async () => {
     try {
+      // Verificación más robusta
       if (!cameraRef.current) {
-        console.log('❌ Referencia de cámara no disponible');
+        console.error('Camera ref is null');
         Alert.alert('Error', 'Cámara no inicializada');
+        setState('error');
         return;
       }
 
       if (!cameraReady) {
-        console.log('❌ Cámara aún no está lista');
-        Alert.alert('Error', 'Por favor espera a que la cámara esté lista');
+        Alert.alert('Error', 'La cámara aún no está lista');
         return;
       }
 
       setState('loading');
 
-      // 🔹 Pequeño delay para estabilidad
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Pequeño delay para asegurar que el estado se actualice
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      console.log('📸 Capturando imagen...');
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-        base64: false,
-      });
-
-      if (!photo || !photo.uri) {
-        throw new Error('No se capturó imagen correctamente');
+      // Verificar nuevamente antes de capturar
+      if (!cameraRef.current) {
+        console.error('Camera ref lost during loading');
+        setState('error');
+        Alert.alert('Error', 'Se perdió la referencia de la cámara');
+        return;
       }
 
-      console.log('📸 FOTO CAPTURADA:', photo.uri);
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        skipProcessing: true,
+      });
+
+      if (!photo?.uri) {
+        throw new Error('No se capturó imagen');
+      }
 
       const logUser: LogUser = {
         image: {
@@ -86,18 +89,15 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
         onSuccess(logUser);
       }, 500);
 
-    } catch (error: any) {
-      console.error('❌ Error en captura facial:', error);
+    } catch (error) {
+      console.error('Error al capturar:', error);
       setState('error');
-      Alert.alert(
-        'Error',
-        'No se pudo capturar el rostro. Intenta nuevamente.'
-      );
+      Alert.alert('Error', 'No se pudo capturar el rostro');
     }
   };
 
-  // ❌ Sin permisos de cámara
-  if (hasPermission === null) {
+  // ⏳ Cargando permisos
+  if (!permission) {
     return (
       <Modal visible transparent animationType="fade">
         <View style={styles.overlay}>
@@ -112,7 +112,8 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
     );
   }
 
-  if (hasPermission === false) {
+  // ❌ Sin permisos
+  if (!permission.granted) {
     return (
       <Modal visible transparent animationType="fade">
         <View style={styles.overlay}>
@@ -121,12 +122,7 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
               Se requiere acceso a la cámara
             </Text>
 
-            <TouchableOpacity 
-              onPress={async () => {
-                const { status } = await Camera.requestCameraPermissionsAsync();
-                setHasPermission(status === 'granted');
-              }}
-            >
+            <TouchableOpacity onPress={requestPermission}>
               <Text style={{ color: '#60A5FA' }}>Permitir cámara</Text>
             </TouchableOpacity>
 
@@ -144,55 +140,58 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
       <View style={styles.overlay}>
         <View style={styles.container}>
 
-          {/* ESCANEANDO */}
-          {state === 'scanning' && (
-            <View style={styles.scanFrameContainer}>
-              <View style={styles.scanFrame}>
-                <Camera
-                  ref={cameraRef}
-                  type='front'
-                  style={{ width: '100%', height: '100%' }}
-                  onCameraReady={() => {
-                    console.log('📷 Cámara lista');
-                    setCameraReady(true);
-
-                    // ⏱️ Delay para estabilidad
-                    setTimeout(() => {
-                      setCanCapture(true);
-                    }, 1500);
-                  }}
-                />
-              </View>
-
-              <Text style={styles.scanningTitle}>
-                Verificando rostro para marcar {actionType}
-              </Text>
-
-              {/* BOTÓN DE CAPTURA */}
-              {canCapture && (
-                <TouchableOpacity
-                  onPress={captureFace}
-                  style={{
-                    marginTop: 20,
-                    paddingVertical: 12,
-                    paddingHorizontal: 20,
-                    backgroundColor: '#2563EB',
-                    borderRadius: 12,
-                  }}
-                >
-                  <Text style={{ color: 'white', fontWeight: '600' }}>
-                    Capturar rostro
-                  </Text>
-                </TouchableOpacity>
-              )}
-
-              {!canCapture && cameraReady && (
-                <Text style={{ color: '#FCD34D', marginTop: 15 }}>
-                  Preparando cámara...
-                </Text>
-              )}
+          {/* Mantener la cámara montada siempre, solo ocultarla */}
+          <View style={styles.scanFrameContainer}>
+            <View 
+              style={[
+                styles.scanFrame, 
+                state !== 'scanning' && { display: 'none' }
+              ]}
+            >
+              <CameraView
+                ref={cameraRef}
+                facing="front"
+                style={{ width: '100%', height: '100%' }}
+                onCameraReady={() => {
+                  console.log('Camera ready');
+                  setCameraReady(true);
+                  setTimeout(() => setCanCapture(true), 1500);
+                }}
+              />
             </View>
-          )}
+
+            {/* ESCANEANDO */}
+            {state === 'scanning' && (
+              <>
+                <Text style={styles.scanningTitle}>
+                  Verificando rostro para marcar {actionType}
+                </Text>
+
+                {canCapture && (
+                  <TouchableOpacity
+                    onPress={captureFace}
+                    style={{
+                      marginTop: 20,
+                      paddingVertical: 12,
+                      paddingHorizontal: 20,
+                      backgroundColor: '#2563EB',
+                      borderRadius: 12,
+                    }}
+                  >
+                    <Text style={{ color: 'white', fontWeight: '600' }}>
+                      Capturar rostro
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+                {!canCapture && cameraReady && (
+                  <Text style={{ color: '#FCD34D', marginTop: 15 }}>
+                    Preparando cámara...
+                  </Text>
+                )}
+              </>
+            )}
+          </View>
 
           {/* CARGANDO */}
           {state === 'loading' && (
