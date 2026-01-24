@@ -50,8 +50,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
         setAllAttendances(data);
       } catch (error) {
         Alert.alert('Error', 'No se pudieron cargar las asistencias');
-      } finally {
-        setAllAttendances([]);
       }
     }
     loadData()
