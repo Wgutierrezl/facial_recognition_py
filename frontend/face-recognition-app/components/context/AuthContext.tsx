@@ -37,6 +37,7 @@ interface AuthContextType {
   registerUser: (userData: UserCreate) => Promise<UserResponse | null>;
   loginUser: (data: LoginDTO) => Promise<UserResponse | null>;
   loginWithFacial: (data: LogUser) => Promise<UserResponse | null>;
+  getUsers: () => Promise<UserResponse[] | null>;
   logout: () => void;
 }
 
@@ -55,10 +56,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         setLoading(true); // ✅ Iniciar loading
         
-        const [placesRes, areasRes, userRes] = await Promise.all([
+        const [placesRes, areasRes] = await Promise.all([
           GetAllPlaces(),
-          GetAllAreas(),
-          GetAllUsers()
+          GetAllAreas()
         ]);
 
         console.log('Places loaded:', placesRes); // ✅ Debug
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         setPlaces(placesRes ?? []);
         setAreas(areasRes ?? []);
-        setUsers(userRes ?? []);
+
       } catch (error: any) {
         Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
       } finally {
@@ -85,6 +85,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return response ?? null;
     } catch (error: any) {
       Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
+      return null;
+    }
+  };
+
+  const getUsers = async (): Promise<UserResponse[] | null> => {
+    try {
+      const response = await GetAllUsers();
+      const data = response ?? [];
+      setUsers(data);
+      return data;
+    } catch (error: any) {
+      Alert.alert('Aún no hay usuarios registrados en la aplicación');
+      setUsers([]);
       return null;
     }
   };
@@ -124,7 +137,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       await StorageService.saveToken(response.token);
       await StorageService.saveRole(response.rol);
-      await StorageService.saveUserId(response.user_id);
 
       const profile = await GetProfile();
       if (profile) {
@@ -139,8 +151,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setCurrentUser(null);
+    await StorageService.ClearSession()
+
   };
 
   return (
@@ -154,6 +168,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         registerUser,
         loginUser,
         loginWithFacial,
+        getUsers,
         logout
       }}
     >

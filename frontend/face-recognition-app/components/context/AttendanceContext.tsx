@@ -23,6 +23,8 @@ interface AttendanceContextType {
   canMarkExit: boolean;
   finishedToday: boolean;
 
+  getMyAttendances : () => Promise<AttendanceResponse[] | null>
+  getActualAttendanceRes : () => Promise<AttendanceResponse | undefined>;
   markEntry: (data: AttendanceEntrance) => Promise<void>;
   markExit: (data: AttendanceExit) => Promise<void>;
   refreshMyAttendances: () => Promise<void>;
@@ -60,9 +62,38 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
     }
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
     refreshMyAttendances();
-  }, []);
+  }, []); */
+
+  const getMyAttendances = async() : Promise<AttendanceResponse[] | null>=> {
+    try{
+      const response=await GetMyAttendance()
+
+      const data=response ?? []
+      setAttendances(data)
+      return data
+
+    }catch(error:any){
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`);
+      setAttendances([])
+      return []
+      
+    }
+  }
+  
+  const getActualAttendanceRes=async() : Promise<AttendanceResponse | undefined> => {
+    try{
+      const response=await GetActualAttendance()
+      const data=response ??  undefined
+      setActualAttendance(data)
+      return data
+
+    }catch(error:any){
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`);
+      return ;
+    }
+  }
 
   const markEntry = async (data: AttendanceEntrance) => {
     try {
@@ -108,6 +139,8 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
         canMarkEntry,
         canMarkExit,
         finishedToday,
+        getMyAttendances,
+        getActualAttendanceRes,
         markEntry,
         markExit,
         refreshMyAttendances,
