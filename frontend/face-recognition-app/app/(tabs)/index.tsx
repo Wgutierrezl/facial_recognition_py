@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthContext, AuthProvider } from '@/components/context/AuthContext';
 import { AdminProvider } from '@/components/context/AdminContext';
-import { AttendanceProvider } from '@/components/context/AttendanceContext';
+import { AttendanceProvider, useAttendanceContext } from '@/components/context/AttendanceContext';
 import LoginScreen from '@/components/LoginScreen';
 import AdminDashboard from '@/components/AdminDashboard';
 import RegisterScreen from '@/components/RegisterScreen';
@@ -26,12 +26,15 @@ type ActionType = 'entrada' | 'salida';
 
 function AppContent() {
   const { currentUser, logout, loginWithFacial } = useAuthContext();
+  const { markEntry, markExit } = useAttendanceContext();
+  
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
   const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
+  const [facialVerificationMode, setFacialVerificationMode] = useState<'login' | 'attendance'>('login');
 
   const handleLogin = async () => {
-    const role=await StorageService.getRole()
+    const role = await StorageService.getRole();
     if (role === 'employee') {
       setCurrentScreen('employeeDashboard');
     } else {
@@ -51,48 +54,96 @@ function AppContent() {
   const handleSiteSelected = (placeId: number) => {
     setSelectedPlaceId(placeId);
     setPendingAction('entrada');
+    setFacialVerificationMode('attendance');
     setCurrentScreen('facialVerification');
   };
 
   const handleMarkExit = () => {
     setPendingAction('salida');
+    setFacialVerificationMode('attendance');
     setCurrentScreen('facialVerification');
   };
 
-  const handleFacialSuccess = async (data: LogUser) => {
+  // Handler para LOGIN con reconocimiento facial
+  const handleFacialLoginSuccess = async (data: LogUser) => {
     try {
-      // Llamar al login facial con la imagen capturada
       const user = await loginWithFacial(data);
       
       if (user) {
-        // Obtener el rol guardado para navegar a la pantalla correcta
         const role = await StorageService.getRole();
         if (role === 'employee') {
           setCurrentScreen('employeeDashboard');
         } else {
           setCurrentScreen('adminDashboard');
         }
-        setPendingAction(null);
-        setSelectedPlaceId(null);
       } else {
-        Alert.alert('no se ha logrado reconocer el rostro')
-        setPendingAction(null);
-        setSelectedPlaceId(null);
-        setCurrentScreen('employeeDashboard');
+        Alert.alert('Error', 'No se ha logrado reconocer el rostro');
+        setCurrentScreen('login');
       }
     } catch (error: any) {
       console.error('Error en facial login:', error);
-      Alert.alert('no se ha logrado reconocer el rostro')
+      Alert.alert('Error', 'No se ha logrado reconocer el rostro');
+      setCurrentScreen('login');
+    }
+  };
+
+  // Handler para MARCAR ASISTENCIA (entrada/salida) con reconocimiento facial
+  const handleFacialAttendanceSuccess = async (data: LogUser) => {
+    try {
+      if (pendingAction === 'entrada') {
+        if (!selectedPlaceId) {
+          Alert.alert('Error', 'No se seleccionó una sede');
+          setPendingAction(null);
+          setCurrentScreen('employeeDashboard');
+          return;
+        }
+
+        // Llamar a markEntry del contexto
+        await markEntry({
+          place_id: selectedPlaceId,
+          file: data.image
+        });
+        
+      } else if (pendingAction === 'salida') {
+        // Llamar a markExit del contexto
+        await markExit({
+          file: data.image
+        });
+      }
+
+      // Limpiar estados y volver al dashboard
+      setPendingAction(null);
+      setSelectedPlaceId(null);
+      setCurrentScreen('employeeDashboard');
+
+    } catch (error: any) {
+      console.error('Error al marcar asistencia:', error);
+      // Los errores ya se manejan en el contexto con Alert
       setPendingAction(null);
       setSelectedPlaceId(null);
       setCurrentScreen('employeeDashboard');
     }
   };
 
+  // Handler unificado que decide qué hacer según el modo
+  const handleFacialSuccess = async (data: LogUser) => {
+    if (facialVerificationMode === 'login') {
+      await handleFacialLoginSuccess(data);
+    } else {
+      await handleFacialAttendanceSuccess(data);
+    }
+  };
+
   const handleFacialCancel = () => {
     setPendingAction(null);
     setSelectedPlaceId(null);
-    setCurrentScreen('employeeDashboard');
+    
+    // Volver a la pantalla correcta según el modo
+    if (facialVerificationMode === 'login') {
+      setCurrentScreen('login');
+    } else {
+      setCurrentScreen('employeeDashboard');
+    }
   };
 
   const handleNavigateToHistory = () => {
@@ -118,7 +169,10 @@ function AppContent() {
   return (
     <>
       {currentScreen === 'login' && (
-        <LoginScreen onLogin={handleLogin} onNavigateToRegister={handleNavigateToRegister} />
+        <LoginScreen 
+          onLogin={handleLogin} 
+          onNavigateToRegister={handleNavigateToRegister} 
+        />
       )}
 
       {currentScreen === 'register' && (
@@ -149,9 +203,9 @@ function AppContent() {
         />
       )}
 
-      {currentScreen === 'facialVerification' && pendingAction && (
+      {currentScreen === 'facialVerification' && (
         <FacialVerification
-          actionType={pendingAction}
+          actionType={pendingAction || 'entrada'} 
           onSuccess={handleFacialSuccess}
           onCancel={handleFacialCancel}
         />
