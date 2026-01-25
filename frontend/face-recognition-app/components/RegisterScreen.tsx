@@ -36,7 +36,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
   };
 
   const handleFacialVerificationSuccess = (facialFileData: any) => {
-    setFacialFile(facialFileData);
+    const image=facialFileData.image || facialFileData
+    setFacialFile(image);
     setFacialCaptured(true);
     setShowFacialVerification(false);
     setError('');

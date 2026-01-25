@@ -62,9 +62,9 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
     }
   };
 
-  /* useEffect(() => {
+  useEffect(() => {
     refreshMyAttendances();
-  }, []); */
+  }, []);
 
   const getMyAttendances = async() : Promise<AttendanceResponse[] | null>=> {
     try{
