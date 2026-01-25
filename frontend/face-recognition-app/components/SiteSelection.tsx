@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useAppContext } from '@/components/context/AdminContext';
+import { useAuthContext } from './context/AuthContext';
 import { MapPin, ArrowRight, Check } from 'lucide-react-native';
 import { styles } from '@/styles/SiteSelectionStyles';
 
 interface SiteSelectionProps {
-  onSelectSite: (placeId: string) => void;
+  onSelectSite: (placeId: number) => void;
   onCancel: () => void;
 }
 
 const SiteSelection: React.FC<SiteSelectionProps> = ({ onSelectSite, onCancel }) => {
-  const { places } = useAppContext();
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string>('');
+  const { places } = useAuthContext();
+  const [selectedPlaceId, setSelectedPlaceId] = useState<number>();
 
   const handleContinue = () => {
     if (selectedPlaceId) {

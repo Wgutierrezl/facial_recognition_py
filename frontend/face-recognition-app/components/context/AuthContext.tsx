@@ -1,5 +1,4 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
-import Swal from "sweetalert2";
 import StorageService from "@/functions/storage";
 import { Alert } from "react-native";
 
@@ -33,6 +32,7 @@ interface AuthContextType {
   places: PlaceResponse[];
   areas: AreaResponse[];
   users: UserResponse[];
+  loading: boolean; // ✅ Agregado
 
   registerUser: (userData: UserCreate) => Promise<UserResponse | null>;
   loginUser: (data: LoginDTO) => Promise<UserResponse | null>;
@@ -46,23 +46,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [currentUser, setCurrentUser] = useState<UserResponse | null>(null);
   const [places, setPlaces] = useState<PlaceResponse[]>([]);
   const [areas, setAreas] = useState<AreaResponse[]>([]);
-  const [users, setUsers] = useState<UserResponse[]>([])
+  const [users, setUsers] = useState<UserResponse[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ Agregado
 
   // 🔹 Cargar sedes y áreas para el registro
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true); // ✅ Iniciar loading
+        
         const [placesRes, areasRes, userRes] = await Promise.all([
           GetAllPlaces(),
           GetAllAreas(),
           GetAllUsers()
         ]);
 
+        console.log('Places loaded:', placesRes); // ✅ Debug
+        console.log('Areas loaded:', areasRes); // ✅ Debug
+
         setPlaces(placesRes ?? []);
         setAreas(areasRes ?? []);
         setUsers(userRes ?? []);
       } catch (error: any) {
-        Swal.fire("Error", error.message, "error");
+        Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
+      } finally {
+        setLoading(false); // ✅ Finalizar loading
       }
     };
 
@@ -76,7 +84,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await RegisterUser(userData);
       return response ?? null;
     } catch (error: any) {
-      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
+      Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
       return null;
     }
   };
@@ -89,9 +97,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!session) return null;
 
-      await StorageService.saveToken(session.token)
-      await StorageService.saveRole(session.rol)
-      await StorageService.saveUserId(session.user_id)
+      await StorageService.saveToken(session.token);
+      await StorageService.saveRole(session.rol);
+      await StorageService.saveUserId(session.user_id);
 
       const profile = await GetProfile();
       if (profile) {
@@ -101,7 +109,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return null;
     } catch (error: any) {
-      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
+      Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
       return null;
     }
   };
@@ -114,9 +122,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!response) return null;
 
-      await StorageService.saveToken(response.token)
-      await StorageService.saveRole(response.rol)
-      await StorageService.saveUserId(response.user_id)
+      await StorageService.saveToken(response.token);
+      await StorageService.saveRole(response.rol);
+      await StorageService.saveUserId(response.user_id);
 
       const profile = await GetProfile();
       if (profile) {
@@ -126,7 +134,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return null;
     } catch (error: any) {
-      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
+      Alert.alert("Error", `Ha ocurrido un error inesperado: ${error.message}`);
       return null;
     }
   };
@@ -142,6 +150,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         places,
         areas,
         users,
+        loading, // ✅ Agregado
         registerUser,
         loginUser,
         loginWithFacial,

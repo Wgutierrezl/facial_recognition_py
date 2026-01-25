@@ -1,5 +1,4 @@
 import api from "./api_function";
-import Swal from "sweetalert2";
 import { PlaceCreate, PlaceResponse } from "./models/place";
 import { RoleResponse } from "./models/role";
 

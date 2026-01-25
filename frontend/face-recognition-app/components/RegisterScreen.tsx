@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { useAppContext } from '@/components/context/AdminContext';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { useAuthContext } from './context/AuthContext';
 import { Camera, UserPlus, ArrowLeft, Check } from 'lucide-react-native';
 import { styles } from '@/styles/RegisterScreenStyles';
 import FacialVerification from './FacialVerification';
+import { UserCreate } from '@/functions/models/user';
 
 interface RegisterScreenProps {
   onBack: () => void;
@@ -11,13 +12,13 @@ interface RegisterScreenProps {
 }
 
 const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSuccess }) => {
-  const { registerUser, areas, places } = useAppContext();
+  const { registerUser, areas, places, loading: contextLoading } = useAuthContext(); // ✅ Obtener loading
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    area: '',
-    sede: '',
+    area: null as number | null,
+    sede: null as number | null,
   });
   const [facialCaptured, setFacialCaptured] = useState(false);
   const [facialFile, setFacialFile] = useState<any>(null);
@@ -26,7 +27,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
   const [showAreaPicker, setShowAreaPicker] = useState(false);
   const [showSedePicker, setShowSedePicker] = useState(false);
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = (name: keyof typeof formData, value: string | number | null) => {
     setFormData({ ...formData, [name]: value });
   };
 
@@ -35,7 +36,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
   };
 
   const handleFacialVerificationSuccess = (facialFileData: any) => {
-    // facialFileData es el archivo/objeto devuelto por el componente FacialVerification
     setFacialFile(facialFileData);
     setFacialCaptured(true);
     setShowFacialVerification(false);
@@ -57,14 +57,25 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
       return;
     }
 
-    registerUser({
-      ...formData,
-      role: 'employee',
-      facialImage: facialFile,
-    });
+    const data: UserCreate = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role_id: 2,
+      area_id: formData.area,
+      place_id: formData.sede,
+      file: facialFile
+    }
 
+    registerUser(data);
     onRegisterSuccess();
   };
+
+  // ✅ Buscar el nombre del área seleccionada
+  const selectedAreaName = areas.find(a => a.id === formData.area)?.name || "Selecciona un área";
+  
+  // ✅ Buscar el nombre de la sede seleccionada
+  const selectedSedeName = places.find(p => p.id === formData.sede)?.name || "Selecciona una sede";
 
   return (
     <View style={styles.container}>
@@ -105,154 +116,180 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onBack, onRegisterSucce
             </Text>
           </View>
 
-          <View style={styles.formContainer}>
-            {/* Nombre */}
-            <View>
-              <Text style={styles.label}>
-                Nombre Completo *
+          {/* ✅ Mostrar loading mientras se cargan los datos */}
+          {contextLoading ? (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#2563EB" />
+              <Text style={{ marginTop: 16, color: '#6B7280', fontSize: 14 }}>
+                Cargando datos...
               </Text>
-              <TextInput
-                value={formData.name}
-                onChangeText={(value) => handleChange('name', value)}
-                style={styles.input}
-                placeholder="Juan Pérez"
-                placeholderTextColor="#9CA3AF"
-              />
             </View>
-
-            {/* Email */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Email *</Text>
-              <TextInput
-                value={formData.email}
-                onChangeText={(value) => handleChange('email', value)}
-                style={styles.input}
-                placeholder="tu@email.com"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            {/* Contraseña */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>
-                Contraseña *
-              </Text>
-              <TextInput
-                value={formData.password}
-                onChangeText={(value) => handleChange('password', value)}
-                style={styles.input}
-                placeholder="••••••"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry
-              />
-            </View>
-
-            {/* Área */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Área *</Text>
-              <TouchableOpacity
-                onPress={() => setShowAreaPicker(!showAreaPicker)}
-                style={styles.pickerButton}
-              >
-                <Text style={[
-                  styles.pickerButtonText,
-                  !formData.area && styles.pickerButtonPlaceholder
-                ]}>
-                  {formData.area || "Selecciona un área"}
+          ) : (
+            <View style={styles.formContainer}>
+              {/* Nombre */}
+              <View>
+                <Text style={styles.label}>
+                  Nombre Completo *
                 </Text>
-              </TouchableOpacity>
-              {showAreaPicker && (
-                <View style={styles.dropdownContainer}>
-                  {areas.map((area) => (
-                    <TouchableOpacity
-                      key={area.id}
-                      onPress={() => {
-                        handleChange('area', area.name);
-                        setShowAreaPicker(false);
-                      }}
-                      style={styles.dropdownItem}
-                    >
-                      <Text style={styles.dropdownItemText}>{area.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Sede */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Sede *</Text>
-              <TouchableOpacity
-                onPress={() => setShowSedePicker(!showSedePicker)}
-                style={styles.pickerButton}
-              >
-                <Text style={[
-                  styles.pickerButtonText,
-                  !formData.sede && styles.pickerButtonPlaceholder
-                ]}>
-                  {formData.sede || "Selecciona una sede"}
-                </Text>
-              </TouchableOpacity>
-              {showSedePicker && (
-                <View style={styles.dropdownContainer}>
-                  {places.map((place) => (
-                    <TouchableOpacity
-                      key={place.id}
-                      onPress={() => {
-                        handleChange('sede', place.name);
-                        setShowSedePicker(false);
-                      }}
-                      style={styles.dropdownItem}
-                    >
-                      <Text style={styles.dropdownItemText}>{place.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Captura Facial */}
-            <View style={[styles.formGroup, styles.facialContainer]}>
-              <View style={styles.facialIconBox}>
-                <Camera size={48} color="#9CA3AF" />
+                <TextInput
+                  value={formData.name}
+                  onChangeText={(value) => handleChange('name', value)}
+                  style={styles.input}
+                  placeholder="Juan Pérez"
+                  placeholderTextColor="#9CA3AF"
+                />
               </View>
-              <Text style={styles.facialTitle}>
-                Captura Facial Obligatoria *
-              </Text>
-              <Text style={styles.facialSubtitle}>
-                Esta imagen se usará para autenticación y asistencia
-              </Text>
-              {!facialCaptured ? (
-                <TouchableOpacity
-                  onPress={handleCaptureFacial}
-                  style={styles.captureButton}
-                >
-                  <Text style={styles.captureButtonText}>Capturar Rostro</Text>
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.capturedContainer}>
-                  <View style={styles.capturedIconBox}>
-                    <Check size={32} color="#16A34A" />
-                  </View>
-                  <Text style={styles.capturedText}>
-                    Rostro Capturado
-                  </Text>
-                </View>
-              )}
-            </View>
 
-            {/* Botón Submit */}
-            <TouchableOpacity
-              onPress={handleSubmit}
-              style={styles.submitButton}
-            >
-              <Text style={styles.submitButtonText}>
-                Registrarse
-              </Text>
-            </TouchableOpacity>
-          </View>
+              {/* Email */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Email *</Text>
+                <TextInput
+                  value={formData.email}
+                  onChangeText={(value) => handleChange('email', value)}
+                  style={styles.input}
+                  placeholder="tu@email.com"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              {/* Contraseña */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>
+                  Contraseña *
+                </Text>
+                <TextInput
+                  value={formData.password}
+                  onChangeText={(value) => handleChange('password', value)}
+                  style={styles.input}
+                  placeholder="••••••"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry
+                />
+              </View>
+
+              {/* Área */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Área *</Text>
+                <TouchableOpacity
+                  onPress={() => setShowAreaPicker(!showAreaPicker)}
+                  style={styles.pickerButton}
+                >
+                  <Text style={[
+                    styles.pickerButtonText,
+                    !formData.area && styles.pickerButtonPlaceholder
+                  ]}>
+                    {selectedAreaName}
+                  </Text>
+                </TouchableOpacity>
+                {showAreaPicker && (
+                  <View style={styles.dropdownContainer}>
+                    {areas.length > 0 ? (
+                      areas.map((area) => (
+                        <TouchableOpacity
+                          key={area.id}
+                          onPress={() => {
+                            handleChange('area', area.id);
+                            setShowAreaPicker(false);
+                          }}
+                          style={styles.dropdownItem}
+                        >
+                          <Text style={styles.dropdownItemText}>{area.name}</Text>
+                        </TouchableOpacity>
+                      ))
+                    ) : (
+                      <View style={styles.dropdownItem}>
+                        <Text style={[styles.dropdownItemText, { color: '#9CA3AF' }]}>
+                          No hay áreas disponibles
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {/* Sede */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Sede *</Text>
+                <TouchableOpacity
+                  onPress={() => setShowSedePicker(!showSedePicker)}
+                  style={styles.pickerButton}
+                >
+                  <Text style={[
+                    styles.pickerButtonText,
+                    !formData.sede && styles.pickerButtonPlaceholder
+                  ]}>
+                    {selectedSedeName}
+                  </Text>
+                </TouchableOpacity>
+                {showSedePicker && (
+                  <View style={styles.dropdownContainer}>
+                    {places.length > 0 ? (
+                      places.map((place) => (
+                        <TouchableOpacity
+                          key={place.id}
+                          onPress={() => {
+                            handleChange('sede', place.id);
+                            setShowSedePicker(false);
+                          }}
+                          style={styles.dropdownItem}
+                        >
+                          <Text style={styles.dropdownItemText}>{place.name}</Text>
+                        </TouchableOpacity>
+                      ))
+                    ) : (
+                      <View style={styles.dropdownItem}>
+                        <Text style={[styles.dropdownItemText, { color: '#9CA3AF' }]}>
+                          No hay sedes disponibles
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {/* Captura Facial */}
+              <View style={[styles.formGroup, styles.facialContainer]}>
+                <View style={styles.facialIconBox}>
+                  <Camera size={48} color="#9CA3AF" />
+                </View>
+                <Text style={styles.facialTitle}>
+                  Captura Facial Obligatoria *
+                </Text>
+                <Text style={styles.facialSubtitle}>
+                  Esta imagen se usará para autenticación y asistencia
+                </Text>
+                {!facialCaptured ? (
+                  <TouchableOpacity
+                    onPress={handleCaptureFacial}
+                    style={styles.captureButton}
+                  >
+                    <Text style={styles.captureButtonText}>Capturar Rostro</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.capturedContainer}>
+                    <View style={styles.capturedIconBox}>
+                      <Check size={32} color="#16A34A" />
+                    </View>
+                    <Text style={styles.capturedText}>
+                      Rostro Capturado
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Botón Submit */}
+              <TouchableOpacity
+                onPress={handleSubmit}
+                style={styles.submitButton}
+              >
+                <Text style={styles.submitButtonText}>
+                  Registrarse
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>

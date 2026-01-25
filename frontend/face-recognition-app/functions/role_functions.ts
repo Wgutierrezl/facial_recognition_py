@@ -1,5 +1,4 @@
 import api from "./api_function";
-import Swal from "sweetalert2";
 import { RoleCreate, RoleResponse } from "./models/role";
 
 

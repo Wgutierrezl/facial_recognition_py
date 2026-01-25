@@ -11,7 +11,7 @@ import FacialVerification from '@/components/FacialVerification';
 import EmployeeHistory from '@/components/EmployeeHistory';
 import { UserResponse, LogUser } from '@/functions/models/user';
 import StorageService from '@/functions/storage';
-import Swal from 'sweetalert2';
+import { Alert } from 'react-native';
 
 type Screen =
   | 'login'
@@ -28,7 +28,7 @@ function AppContent() {
   const { currentUser, logout, loginWithFacial } = useAuthContext();
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
 
   const handleLogin = async () => {
     const role=await StorageService.getRole()
@@ -48,7 +48,7 @@ function AppContent() {
     setCurrentScreen('siteSelection');
   };
 
-  const handleSiteSelected = (placeId: string) => {
+  const handleSiteSelected = (placeId: number) => {
     setSelectedPlaceId(placeId);
     setPendingAction('entrada');
     setCurrentScreen('facialVerification');
@@ -75,14 +75,14 @@ function AppContent() {
         setPendingAction(null);
         setSelectedPlaceId(null);
       } else {
-        Swal.fire('Error', 'No se pudo autenticar con el rostro', 'error');
+        Alert.alert('no se ha logrado reconocer el rostro')
         setPendingAction(null);
         setSelectedPlaceId(null);
         setCurrentScreen('employeeDashboard');
       }
     } catch (error: any) {
       console.error('Error en facial login:', error);
-      Swal.fire('Error', 'Error al procesar el reconocimiento facial', 'error');
+      Alert.alert('no se ha logrado reconocer el rostro')
       setPendingAction(null);
       setSelectedPlaceId(null);
       setCurrentScreen('employeeDashboard');

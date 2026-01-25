@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import Swal from 'sweetalert2';
+import { Alert } from 'react-native';
 
 import { AreaCreate } from '@/functions/models/area';
 import { PlaceCreate, PlaceResponse } from '@/functions/models/place';
@@ -38,7 +38,7 @@ export const AdminProvider = ({ children }: AdminProviderProps) => {
     try {
       return await CreatePlace(data);
     } catch (error: any) {
-      Swal.fire('Error', `Error al crear sede: ${error.message}`, 'error');
+      Alert.alert(`Error al crear sede: ${error.message}`)
     }
   };
 
@@ -46,7 +46,7 @@ export const AdminProvider = ({ children }: AdminProviderProps) => {
     try {
       return await CreateArea(data);
     } catch (error: any) {
-      Swal.fire('Error', `Error al crear área: ${error.message}`, 'error');
+      Alert.alert(`Error al crear área: ${error.message}`)
     }
   };
 
@@ -57,7 +57,7 @@ export const AdminProvider = ({ children }: AdminProviderProps) => {
       const response = await GetAttendanceByUserId(userId);
       return response ?? [];
     } catch (error: any) {
-      Swal.fire('Error', `Error al obtener asistencias: ${error.message}`, 'error');
+      Alert.alert(`Error al obtener asistencias: ${error.message}`)
       return [];
     }
   };
@@ -67,7 +67,7 @@ export const AdminProvider = ({ children }: AdminProviderProps) => {
       const response = await GetAllAttendance();
       return response ?? [];
     } catch (error: any) {
-      Swal.fire('Error', `Error al obtener asistencias: ${error.message}`, 'error');
+      Alert.alert(`Error al obtener asistencias: ${error.message}`)
       return [];
     }
   };

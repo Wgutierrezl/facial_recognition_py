@@ -1,23 +1,24 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, TextInput } from 'react-native';
-import { useAppContext, User, Attendance } from '@/components/context/AdminContext';
+import { useAttendanceContext } from './context/AttendanceContext';
 import { ArrowLeft, Calendar, Clock, MapPin, Filter } from 'lucide-react-native';
 import { styles } from '@/styles/EmployeeHistoryStyles';
+import { UserResponse } from '@/functions/models/user';
 
 interface EmployeeHistoryProps {
-  user: User;
+  user: UserResponse;
   onBack: () => void;
 }
 
 type FilterType = 'all' | 'thisWeek' | 'custom';
 
 const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
-  const { getAttendancesByUser } = useAppContext();
+  const {attendances} = useAttendanceContext()
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const attendances = getAttendancesByUser(user.id);
+  
 
   const filteredAttendances = useMemo(() => {
     let filtered = [...attendances];
@@ -29,23 +30,23 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
       weekStart.setHours(0, 0, 0, 0);
 
       filtered = filtered.filter((att) => {
-        const attDate = new Date(att.date);
+        const attDate = new Date(att.work_date);
         return attDate >= weekStart;
       });
     } else if (filterType === 'custom' && startDate && endDate) {
       filtered = filtered.filter((att) => {
-        const attDate = new Date(att.date);
+        const attDate = new Date(att.work_date);
         const start = new Date(startDate);
         const end = new Date(endDate);
         return attDate >= start && attDate <= end;
       });
     }
 
-    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return filtered.sort((a, b) => new Date(b.work_date).getTime() - new Date(a.work_date).getTime());
   }, [attendances, filterType, startDate, endDate]);
 
   const totalHours = useMemo(() => {
-    return filteredAttendances.reduce((sum, att) => sum + (att.hoursWorked || 0), 0);
+    return filteredAttendances.reduce((sum, att) => sum + (att.total_hours || 0), 0);
   }, [filteredAttendances]);
 
   const formatDate = (dateStr: string) => {
@@ -109,7 +110,7 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
             <View style={styles.statCardContent}>
               <View style={styles.statInfo}>
                 <Text style={styles.statLabel}>Sede Principal</Text>
-                <Text style={[styles.statValue, { fontSize: 16 }]}>{user.sede}</Text>
+                <Text style={[styles.statValue, { fontSize: 16 }]}>{user.place.name}</Text>
               </View>
               <View style={[styles.statIcon, { backgroundColor: '#f3e8ff' }]}>
                 <MapPin size={24} color="#9333EA" />
@@ -225,7 +226,7 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Calendar size={16} color="#9CA3AF" />
                       <Text style={styles.cellValue}>
-                        {formatDate(item.date)}
+                        {formatDate(item.work_date.toString())}
                       </Text>
                     </View>
                   </View>
@@ -234,7 +235,7 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
                   <View style={styles.tableCell}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <MapPin size={16} color="#9CA3AF" />
-                      <Text style={styles.cellValue}>{item.placeName}</Text>
+                      <Text style={styles.cellValue}>{item.user.place.name}</Text>
                     </View>
                   </View>
 
@@ -242,19 +243,19 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                     <View>
                       <Text style={styles.cellLabel}>Entrada</Text>
-                      <Text style={styles.cellValue}>{item.entryTime}</Text>
+                      <Text style={styles.cellValue}>{item.entry_time}</Text>
                     </View>
                     <View>
                       <Text style={styles.cellLabel}>Salida</Text>
-                      <Text style={styles.cellValue}>{item.exitTime || '-'}</Text>
+                      <Text style={styles.cellValue}>{item.exit_time || '-'}</Text>
                     </View>
                   </View>
 
                   {/* Horas */}
-                  {item.hoursWorked ? (
+                  {item.total_hours ? (
                     <View style={styles.hoursWorkedBadge}>
                       <Text style={styles.hoursWorkedText}>
-                        {item.hoursWorked.toFixed(2)}h
+                        {item.total_hours.toFixed(2)}h
                       </Text>
                     </View>
                   ) : (
@@ -264,7 +265,7 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
                   )}
                 </View>
               )}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id.toString()}
               scrollEnabled={false}
             />
           )}
