@@ -1,5 +1,4 @@
 import api from "./api_function";
-import Swal from 'sweetalert2'
 import { LoginDTO, LogUser, SessionDTO, UserCreate, UserResponse } from "./models/user";
 
 //METHOD TO REGISTER AN USER
@@ -12,7 +11,35 @@ export async function RegisterUser(data:UserCreate) : Promise<UserResponse | voi
         form.append('role_id', data.role_id.toString());
         form.append('area_id', data.area_id.toString());
         form.append('place_id', data.place_id.toString());
-        form.append('file',data.file);
+
+        // ✅ CORRECCIÓN: Crear el objeto file correctamente para React Native
+        if (data.file) {
+            // Verificar si data.file ya tiene la estructura correcta (uri, type, name)
+            if (typeof data.file === 'object' && 'uri' in data.file) {
+                // Ya tiene el formato correcto
+                form.append('file', {
+                    uri: data.file.uri,
+                    type: data.file.type || 'image/jpeg',
+                    name: data.file.name || `facial_${Date.now()}.jpg`,
+                } as any);
+            } else {
+                // Si es solo un objeto genérico, intentar construirlo
+                console.warn('File object might be incorrectly formatted:', data.file);
+                form.append('file', data.file);
+            }
+        } else {
+            console.error('No file provided in registration data');
+            throw new Error('Se requiere una imagen facial para el registro');
+        }
+
+        console.log('📤 Sending registration data:', {
+            name: data.name,
+            email: data.email,
+            role_id: data.role_id,
+            area_id: data.area_id,
+            place_id: data.place_id,
+            hasFile: !!data.file,
+        });
 
         const response=await api.post<UserResponse>('/users/registerUser',form,{
             headers:{
@@ -24,7 +51,17 @@ export async function RegisterUser(data:UserCreate) : Promise<UserResponse | voi
         return response.data;
 
     }catch(error:any){
-        console.error('Error registering user:',error.message);
+        console.error('❌ Error registering user:', error);
+        console.error('Error details:', error.response?.data || error.message);
+        
+        // Proporcionar mensaje de error más específico
+        if (error.response) {
+            throw new Error(error.response.data?.message || 'Error del servidor al registrar usuario');
+        } else if (error.request) {
+            throw new Error('No se pudo conectar con el servidor. Verifica tu conexión a internet.');
+        } else {
+            throw new Error(error.message || 'Error desconocido al registrar usuario');
+        }
     }
 }
 

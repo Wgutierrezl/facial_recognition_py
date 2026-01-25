@@ -1,5 +1,4 @@
 import api from "./api_function";
-import Swal from "sweetalert2";
 import { AttendanceEntrance, AttendanceExit, AttendanceResponse } from "./models/attendance";
 
 //METHOD TO REGISTER ENTRANCE
@@ -110,6 +109,27 @@ export async function GetAllAttendance()  : Promise<AttendanceResponse[] | void>
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
             console.log(`ha ocurrido un error ${error.message}`)
+            return ;
+        }
+
+        throw error;
+    }
+    
+}
+
+//METHOD TO GET THE ACTUAL ATTENDANCE BY THE STATE
+export async function GetActualAttendance()  : Promise<AttendanceResponse | void>{
+    try{
+        
+
+        const response=await api.get<AttendanceResponse>('/attendance/getActualAttendance')
+        console.log(response.data);
+        return response.data;
+
+    }catch(error:any){
+        const statusCode=error.response.status
+        if(statusCode===404 || statusCode===400){
+            console.log(`the user hasnt yet check the entrance ${error.message}`)
             return ;
         }
 

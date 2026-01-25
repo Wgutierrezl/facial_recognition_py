@@ -2,6 +2,7 @@ import {
   RegisterEntrance,
   RegisterExit,
   GetMyAttendance,
+  GetActualAttendance
 } from "@/functions/attendance_functions";
 
 import {
@@ -11,11 +12,16 @@ import {
 } from "@/functions/models/attendance";
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import Swal from "sweetalert2";
+import { Alert } from "react-native";
 
 interface AttendanceContextType {
   attendances: AttendanceResponse[];
+  actualAttendance : AttendanceResponse | void;
   loading: boolean;
+
+  canMarkEntry: boolean;
+  canMarkExit: boolean;
+  finishedToday: boolean;
 
   markEntry: (data: AttendanceEntrance) => Promise<void>;
   markExit: (data: AttendanceExit) => Promise<void>;
@@ -32,15 +38,23 @@ const AttendanceContext = createContext<AttendanceContextType | undefined>(
 
 export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
   const [attendances, setAttendances] = useState<AttendanceResponse[]>([]);
+  const [actualAttendance, setActualAttendance] = useState<AttendanceResponse | void>()
   const [loading, setLoading] = useState(false);
 
   const refreshMyAttendances = async () => {
     try {
       setLoading(true);
-      const response = await GetMyAttendance();
-      setAttendances(response ?? []);
+
+      const [attendanceRes, actualAttendanceRes] = await Promise.all([
+        GetMyAttendance(),
+        GetActualAttendance()
+      ]);
+
+      setAttendances(attendanceRes ?? []);
+      setActualAttendance(actualAttendanceRes);
+
     } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
     } finally {
       setLoading(false);
     }
@@ -54,10 +68,10 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
     try {
       setLoading(true);
       await RegisterEntrance(data);
-      Swal.fire("Éxito", "Entrada registrada correctamente", "success");
+      Alert.alert(`Entrada registrada correctamente`)
       await refreshMyAttendances();
     } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
     } finally {
       setLoading(false);
     }
@@ -67,20 +81,33 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
     try {
       setLoading(true);
       await RegisterExit(data);
-      Swal.fire("Éxito", "Salida registrada correctamente", "success");
+      Alert.alert(`Salida registrada correctamente`)
       await refreshMyAttendances();
     } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
     } finally {
       setLoading(false);
     }
   };
 
+  const canMarkEntry = !actualAttendance;
+
+  const canMarkExit =
+    !!actualAttendance && !actualAttendance.exit_time;
+
+  const finishedToday =
+    !!actualAttendance && !!actualAttendance.exit_time;
+
+
   return (
     <AttendanceContext.Provider
       value={{
         attendances,
+        actualAttendance,
         loading,
+        canMarkEntry,
+        canMarkExit,
+        finishedToday,
         markEntry,
         markExit,
         refreshMyAttendances,

@@ -20,7 +20,7 @@ export interface UserCreate{
     role_id:number
     area_id:number
     place_id:number
-    file: any;
+    file: ImageFile;
 }
 
 export interface LogUser {
@@ -29,6 +29,13 @@ export interface LogUser {
     name: string;
     type: string;
   };
+}
+
+export interface ImageFile {
+  uri: string;
+  type?: string;
+  name?: string;
+  fileName?: string; // Algunos componentes usan fileName en lugar de name
 }
 
 export interface LoginDTO{

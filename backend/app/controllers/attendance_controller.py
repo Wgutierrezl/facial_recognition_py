@@ -42,7 +42,6 @@ def register_entrance(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
 
-
 @router.post('/registerExit', response_model=AttendanceResponse)
 def register_exit(
     image: UploadFile=File(...),
@@ -85,7 +84,6 @@ def get_my_attendance(db:Session=Depends(get_db),
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
     
-
 @router.get('/getAttendanceByUserId/{user_id}', response_model=List[AttendanceResponse])
 def get_my_attendance(user_id:str,
                       db:Session=Depends(get_db),
@@ -126,3 +124,26 @@ def get_all_attendances(db:Session=Depends(get_db),
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error (): {str(e)}")
+    
+@router.get('/getActualAttendance',response_model=AttendanceResponse)
+def get_actual_attendance(db:Session=Depends(get_db),
+                          current_user:dict=Depends(get_current_user)) -> AttendanceResponse:
+    try:
+        
+        _service=AttendanceService(db)
+        
+        actual_attendance=_service.get_actual_attendance(current_user['user_id'])
+        
+        if actual_attendance is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='you dont have check the entrance'
+            )
+            
+        return actual_attendance
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"there was an error {str(e)}"
+        )

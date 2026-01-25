@@ -118,5 +118,11 @@ class AttendanceService:
         
         return attendances
 
-
+    def get_actual_attendance(self, user_id:str) -> AttendanceResponse:
+        attendance=self.attendance_repository.get_actual_attendance_user_id(user_id)
+        
+        if not attendance:
+            return None
+        
+        return attendance 
 
