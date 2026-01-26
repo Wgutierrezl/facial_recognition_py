@@ -35,14 +35,20 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   const {
     canMarkEntry,
     canMarkExit,
-    finishedToday
+    finishedToday,
+    refreshMyAttendances
   } = useAttendanceContext();
 
   React.useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const data=async () => {
+      const timer = setInterval(() => {
+        setCurrentTime(new Date());
+      }, 1000);
+      await refreshMyAttendances()
     return () => clearInterval(timer);
+    }
+    data()
+    
   }, []);
 
   const formattedTime = currentTime.toLocaleTimeString('es-ES', {

@@ -1,6 +1,7 @@
 from app.models.attendance import Attendance
 from fastapi import UploadFile
 from app.schemas.attendance_schema import AttendanceEntrance, AttendanceResponse
+from app.services.user_service import UserService
 from app.repositories.attendance_repository import AttendanceRepository
 from sqlalchemy.orm import Session
 from datetime import date, datetime, time, timedelta
@@ -14,6 +15,7 @@ class AttendanceService:
         self.attendance_repository = AttendanceRepository(self.db)
         self.rekognition_service = RekognitionService()
         self.collection_id="users_collection"
+        self.user_service= UserService(self.db,self.rekognition_service)
 
     def create_attendance_entrance(self, data:AttendanceEntrance, user_id:str,image:UploadFile) -> AttendanceResponse:
         try:
@@ -28,6 +30,12 @@ class AttendanceService:
             
             if not face_id:
                 raise ValueError('your face doesnt coincide with the facial rekognition')
+            
+            # we search the user id profile and we asked if the user_face_id is exactly that the face_id
+            user_face_id=self.user_service.get_user_by_id(user_id)
+            
+            if user_face_id.face_id != face_id:
+                raise ValueError('your face doesnt coincide with the user save in the bd')
             
             # we ask if the user check the entrance
             existing_entrance=self.attendance_repository.get_actual_attendance_user_id(user_id)
@@ -72,6 +80,12 @@ class AttendanceService:
             
             if not facial_id:
                 raise ValueError('we dont rekognition your face id')
+            
+            # we search the user id profile and we asked if the user_face_id is exactly that the face_id
+            user_face_id=self.user_service.get_user_by_id(user_id)
+            
+            if user_face_id.face_id != facial_id:
+                raise ValueError('your face doesnt coincide with the user save in the bd')
             
             """ existing_exit=self.attendance_repository.get_actual_attendance_user_id(user_id)
 
