@@ -28,6 +28,7 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const { getAllAttendances, addPlace, addArea } = useAdminContext();
+  const { getUsers } = useAuthContext();
   const [allAttendances, setAllAttendances] = useState<AttendanceResponse[]>([])
   const {users, places, areas} = useAuthContext()
   const [filterSede, setFilterSede] = useState('');
@@ -46,8 +47,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   useEffect(()=> {
     const loadData=async() =>{
       try {
-        const data = await getAllAttendances();
-        setAllAttendances(data);
+        
+        const response=await getAllAttendances()
+        setAllAttendances(response ?? []);
+
+        await getUsers()
       } catch (error) {
         Alert.alert('Error', 'No se pudieron cargar las asistencias');
       }

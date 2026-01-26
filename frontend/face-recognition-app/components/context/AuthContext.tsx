@@ -93,6 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const response = await GetAllUsers();
       const data = response ?? [];
+      console.log(`usuarios encontrados : ${data}`)
       setUsers(data);
       return data;
     } catch (error: any) {
