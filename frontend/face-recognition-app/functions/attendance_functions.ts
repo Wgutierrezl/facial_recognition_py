@@ -69,9 +69,9 @@ export async function GetMyAttendance()  : Promise<AttendanceResponse[] | void>{
 
     }catch(error:any){
         const statusCode=error.response.status
-        if(statusCode===404 || statusCode===400){
-            console.log(`ha ocurrido un error ${error.message}`)
-            return ;
+        if(statusCode===404 || statusCode===400 || statusCode===500){
+            console.log(`el usuario aun no tiene asistencias registradas : ${error.message}`)
+            return []
         }
 
         throw error;
@@ -129,7 +129,7 @@ export async function GetActualAttendance()  : Promise<AttendanceResponse | void
     }catch(error:any){
         const statusCode=error.response.status
         if(statusCode===404 || statusCode===400){
-            console.log(`the user hasnt yet check the entrance ${error.message}`)
+            console.log(`el usuario aun no ha marcado entrada : ${error.message}`)
             return ;
         }
 
