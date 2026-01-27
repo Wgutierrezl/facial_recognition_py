@@ -75,19 +75,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
           <Text style={styles.headerSubtitle}>Ingresa para registrar tu asistencia</Text>
         </View>
 
-        {/* Información de prueba */}
-        <View style={styles.credentialsBox}>
-          <Text style={styles.credentialsTitle}>🧪 Credenciales de prueba:</Text>
-          <View>
-            <Text style={styles.credentialsText}>
-              <Text style={styles.credentialsBold}>Empleado:</Text> empleado@example.com / 123456
-            </Text>
-            <Text style={styles.credentialsText}>
-              <Text style={styles.credentialsBold}>Admin:</Text> admin@example.com / admin
-            </Text>
-          </View>
-        </View>
-
         {/* Login Card */}
         <View style={styles.loginCard}>
           {error ? (
@@ -165,7 +152,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
         </View>
 
         {/* Registro rápido */}
-        <View style={styles.registrationPrompt}>
+        {/* <View style={styles.registrationPrompt}>
           <TouchableOpacity
             onPress={onNavigateToRegister}
             style={styles.quickRegisterButton}
@@ -173,7 +160,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onNavigateToRegister
             <UserPlus size={20} color="#FFFFFF" />
             <Text style={styles.quickRegisterText}>Registrar Nuevo Empleado</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );
