@@ -6,7 +6,10 @@ from app.dependencie.db_dependencie import get_db
 from app.dependencie.jwt_dependencie import get_current_user
 from app.dependencie.role_dependencie import require_roles
 from app.services.rekognition_service import RekognitionService
+from app.services.excel_service import ExcelService
 from app.services.attendance_service import AttendanceService
+from app.schemas.attendance_schema import AttendanceFilter
+from fastapi.responses import StreamingResponse
 
 router=APIRouter(prefix='/attendance',
                  tags=['Attendance'],
@@ -147,3 +150,30 @@ def get_actual_attendance(db:Session=Depends(get_db),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"there was an error {str(e)}"
         )
+
+@router.post('/createReportAttendance')
+def get_report_excel_attendance(data:AttendanceFilter,
+                                db:Session=Depends(get_db),
+                                current_user:dict=Depends(get_current_user),
+                                role=Depends(require_roles('admin'))):
+    try:
+        attendance_service=AttendanceService(db)
+
+        try:
+            excel_file = attendance_service.get_attendance_filter(data)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+
+        return StreamingResponse(
+            excel_file,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": "attachment; filename=attendance_report.xlsx"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"there was an error {str(e)}"
+        )
+

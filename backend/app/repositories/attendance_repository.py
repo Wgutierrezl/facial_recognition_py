@@ -3,7 +3,8 @@ from app.models.attendance import Attendance
 from datetime import date
 from sqlalchemy.orm import Session, joinedload
 from app.models.attendance import Attendance
-from app.schemas.attendance_schema import AttendanceResponse
+from app.models.user import User
+from app.schemas.attendance_schema import AttendanceResponse, AttendanceFilter, AttendanceReport
 
 class AttendanceRepository:
 
@@ -53,6 +54,35 @@ class AttendanceRepository:
                         joinedload(Attendance.place))
                 .all()
         )
+
+    def get_report_attendances(self, data:AttendanceFilter):
+        query= (
+            self.db.query(Attendance)
+                .options(
+                    joinedload(Attendance.user)
+                    .joinedload(User.area),
+                    joinedload(Attendance.place),
+                    )
+            )
+
+        if data.user_id:
+            query=query.filter(Attendance.user_id == data.user_id)
+        
+        if data.place_id:
+            query=query.filter(Attendance.place_id == data.place_id)
+
+        if data.area_id:
+            query=query.filter(User.area_id == data.area_id)
+        
+        if data.start_date:
+            query=query.filter(Attendance.work_date>= data.start_date)
+        
+        if data.end_date:
+            query=query.filter(Attendance.work_date <= data.end_date)
+
+        return query.all()
+    
+    
     
     
     

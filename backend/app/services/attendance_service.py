@@ -1,18 +1,19 @@
 from app.models.attendance import Attendance
 from fastapi import UploadFile
-from app.schemas.attendance_schema import AttendanceEntrance, AttendanceResponse
+from app.schemas.attendance_schema import AttendanceEntrance, AttendanceResponse, AttendanceFilter,AttendanceReport
 from app.services.user_service import UserService
 from app.repositories.attendance_repository import AttendanceRepository
 from sqlalchemy.orm import Session
 from datetime import date, datetime, time, timedelta
 from typing import List
 from app.services.rekognition_service import RekognitionService
-
+from app.services.excel_service import ExcelService
 class AttendanceService:
 
     def __init__(self, db:Session):
         self.db = db
         self.attendance_repository = AttendanceRepository(self.db)
+        self.excel_service= ExcelService()
         self.rekognition_service = RekognitionService()
         self.collection_id="users_collection"
         self.user_service= UserService(self.db,self.rekognition_service)
@@ -140,3 +141,29 @@ class AttendanceService:
         
         return attendance 
 
+    def get_attendance_filter(self, data:AttendanceFilter):
+        attedances_report=self.attendance_repository.get_report_attendances(data)
+
+        if not attedances_report:
+            raise ValueError("No existen asistencias con los filtros enviados")
+        
+        map_attendances=self.map_attendance_to_report(attedances_report)
+
+        
+        return self.excel_service.generate_report_attendance_filter(map_attendances)
+
+    
+    # METHOD TO MAP A RESPONSE
+    def map_attendance_to_report(self,attendances: list[Attendance]) -> list[AttendanceReport]:
+        return [
+            AttendanceReport(
+                user_name=a.user.name,
+                place_name=a.place.name,
+                area_name=a.user.area.name if a.user.area else "",
+                work_date=a.work_date,
+                entry_time=a.entry_time,
+                exit_time=a.exit_time,
+                total_hours=a.total_hours
+            )
+            for a in attendances
+    ]
