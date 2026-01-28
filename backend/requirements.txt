@@ -8,3 +8,5 @@ argon2-cffi
 sqlalchemy
 pillow
 pydantic
+openpyxl
+pandas
