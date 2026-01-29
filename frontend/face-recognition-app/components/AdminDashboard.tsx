@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import { useAdminContext } from './context/AdminContext';
 import { useAuthContext } from './context/AuthContext';
+import { useAttendanceContext } from './context/AttendanceContext';
 import { AreaCreate, AreaResponse } from '@/functions/models/area';
 import { PlaceCreate, PlaceResponse } from '@/functions/models/place';
 import { UserResponse } from '@/functions/models/user';
@@ -18,7 +19,7 @@ import {
   TrendingUp,
 } from 'lucide-react-native';
 import { styles } from '@/styles/AdminDashboardStyles';
-import { AttendanceResponse } from '@/functions/models/attendance';
+import { AttendanceFilter, AttendanceResponse } from '@/functions/models/attendance';
 import { GetAllAttendance } from '@/functions/attendance_functions';
 
 interface AdminDashboardProps {
@@ -28,14 +29,15 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const { getAllAttendances, addPlace, addArea } = useAdminContext();
+  const {downloadReport} = useAttendanceContext();
   const { getUsers } = useAuthContext();
   const [allAttendances, setAllAttendances] = useState<AttendanceResponse[]>([])
   const {users, places, areas} = useAuthContext()
-  const [filterSede, setFilterSede] = useState('');
-  const [filterArea, setFilterArea] = useState('');
-  const [filterEmployee, setFilterEmployee] = useState('');
-  const [filterDateStart, setFilterDateStart] = useState('');
-  const [filterDateEnd, setFilterDateEnd] = useState('');
+  const [filterSede, setFilterSede] = useState<number | undefined>();
+  const [filterArea, setFilterArea] = useState<number | undefined>();
+  const [filterEmployee, setFilterEmployee] = useState<string>();
+  const [filterDateStart, setFilterDateStart] = useState<string>();
+  const [filterDateEnd, setFilterDateEnd] = useState<string>();
   const [showAddPlace, setShowAddPlace] = useState(false);
   const [showAddArea, setShowAddArea] = useState(false);
   const [newPlaceName, setNewPlaceName] = useState('');
@@ -65,23 +67,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
     let filtered = [...allAttendances];
 
     if (filterSede) {
-      filtered = filtered.filter((att) => att.place.name === filterSede);
+      filtered = filtered.filter((att) => att.place.id === filterSede);
     }
 
     if (filterArea) {
-      filtered = filtered.filter((att) => att.user.area.name === filterArea);
+      filtered = filtered.filter((att) => att.user.area.id === filterArea);
     }
 
     if (filterEmployee) {
-      filtered = filtered.filter((att) => att.user.name === filterEmployee);
+      filtered = filtered.filter((att) => att.user.id === filterEmployee);
     }
 
     if (filterDateStart) {
-      filtered = filtered.filter((att) => att.work_date.toString() >= filterDateStart);
+      filtered = filtered.filter((att) => att.work_date.toString() >= filterDateStart.toString());
     }
 
     if (filterDateEnd) {
-      filtered = filtered.filter((att) => att.work_date.toString() <= filterDateEnd);
+      filtered = filtered.filter((att) => att.work_date.toString() <= filterDateEnd.toString());
     }
 
     return filtered.sort((a, b) => new Date(b.work_date).getTime() - new Date(a.work_date).getTime());
@@ -148,7 +150,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
+
+    const filsters:AttendanceFilter={
+      user_id: filterEmployee ?? undefined,
+      place_id: filterSede ?? undefined,
+      area_id: filterArea ?? undefined,
+      start_date: filterDateStart ? new Date(filterDateStart) : undefined,
+      end_date: filterDateEnd ? new Date(filterDateEnd) : undefined
+    }
+
+    await downloadReport(filsters)
+    
     Alert.alert('Exportar', 'Exportando registros filtrados a Excel/CSV...');
   };
 
@@ -365,7 +378,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 <View style={styles.filterDropdown}>
                   <TouchableOpacity
                     onPress={() => {
-                      setFilterSede('');
+                      setFilterSede(undefined);
                       setShowSedePicker(false);
                     }}
                     style={styles.filterDropdownItem}
@@ -376,7 +389,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     <TouchableOpacity
                       key={place.id}
                       onPress={() => {
-                        setFilterSede(place.name);
+                        setFilterSede(place.id);
                         setShowSedePicker(false);
                       }}
                       style={styles.filterDropdownItem}
@@ -403,7 +416,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 <View style={styles.filterDropdown}>
                   <TouchableOpacity
                     onPress={() => {
-                      setFilterArea('');
+                      setFilterArea(undefined);
                       setShowAreaPicker(false);
                     }}
                     style={styles.filterDropdownItem}
@@ -414,7 +427,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     <TouchableOpacity
                       key={area.id}
                       onPress={() => {
-                        setFilterArea(area.name);
+                        setFilterArea(area.id);
                         setShowAreaPicker(false);
                       }}
                       style={styles.filterDropdownItem}
@@ -452,7 +465,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                     <TouchableOpacity
                       key={emp.id}
                       onPress={() => {
-                        setFilterEmployee(emp.name);
+                        setFilterEmployee(emp.id);
                         setShowEmployeePicker(false);
                       }}
                       style={styles.filterDropdownItem}

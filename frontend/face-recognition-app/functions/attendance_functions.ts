@@ -1,5 +1,9 @@
 import api from "./api_function";
-import { AttendanceEntrance, AttendanceExit, AttendanceResponse } from "./models/attendance";
+import * as FileSystem from 'expo-file-system';
+import { File, Directory, Paths } from 'expo-file-system';
+import { AttendanceEntrance, AttendanceExit, AttendanceFilter, AttendanceResponse } from "./models/attendance";
+import { Buffer } from 'buffer';
+import * as Sharing from 'expo-sharing';
 
 //METHOD TO REGISTER ENTRANCE
 export async function RegisterEntrance(data:AttendanceEntrance)  : Promise<AttendanceResponse | void>{
@@ -136,4 +140,45 @@ export async function GetActualAttendance()  : Promise<AttendanceResponse | void
         throw error;
     }
     
+}
+
+//METHOD TO DOWNLOAD EXCEL REPORT
+export async function DownloadExcelReport(data: AttendanceFilter) {
+    try {
+        const fileName = `reporte_asistencia_${Date.now()}.xlsx`;
+        
+        // Crear el File correctamente - pasando Paths.cache como primer argumento
+        const file = new File(Paths.cache, fileName);
+
+        // Descargar con Axios
+        const response = await api.post('/attendance/createReportAttendance', data, {
+            responseType: 'arraybuffer', 
+            headers: {
+                'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            }
+        });
+
+        // Convertir arraybuffer a Uint8Array (bytes)
+        const bytes = new Uint8Array(response.data);
+
+        // Escribir el archivo
+        await file.write(bytes);
+
+        console.log('Archivo guardado en:', file.uri);
+
+        // Compartir el archivo
+        if (await Sharing.isAvailableAsync()) {
+            await Sharing.shareAsync(file.uri, {
+                mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                dialogTitle: 'Reporte de Asistencia',
+                UTI: 'com.microsoft.excel.xlsx'
+            });
+        }
+
+        return file.uri;
+
+    } catch (error: any) {
+        console.error('Error al descargar:', error);
+        throw error;
+    }
 }

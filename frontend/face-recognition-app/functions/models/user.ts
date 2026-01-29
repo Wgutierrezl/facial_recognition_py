@@ -4,7 +4,7 @@ import { AreaResponse } from "./area";
 
 
 export interface UserResponse{
-    id: number;
+    id: string;
     name: string;
     email: string;
     role:RoleResponse
