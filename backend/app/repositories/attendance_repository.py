@@ -58,6 +58,7 @@ class AttendanceRepository:
     def get_report_attendances(self, data:AttendanceFilter):
         query= (
             self.db.query(Attendance)
+                .join(Attendance.user)
                 .options(
                     joinedload(Attendance.user)
                     .joinedload(User.area),
