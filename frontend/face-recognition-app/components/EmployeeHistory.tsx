@@ -50,7 +50,13 @@ const EmployeeHistory: React.FC<EmployeeHistoryProps> = ({ user, onBack }) => {
   }, [filteredAttendances]);
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Extraer solo la parte de la fecha (YYYY-MM-DD)
+    const dateOnly = dateStr.split('T')[0];
+    const [year, month, day] = dateOnly.split('-');
+  
+    // Crear fecha en zona horaria local
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+  
     return date.toLocaleDateString('es-ES', {
       weekday: 'short',
       day: '2-digit',
