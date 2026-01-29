@@ -24,3 +24,11 @@ export interface AttendanceResponse{
     face_verified: string
 }
 
+export interface AttendanceFilter{
+    user_id?:string
+    place_id?:number
+    area_id?:number
+    start_date?: Date
+    end_date?:Date
+}
+

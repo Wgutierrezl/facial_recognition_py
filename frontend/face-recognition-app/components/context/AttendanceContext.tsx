@@ -2,12 +2,14 @@ import {
   RegisterEntrance,
   RegisterExit,
   GetMyAttendance,
-  GetActualAttendance
+  GetActualAttendance,
+  DownloadExcelReport
 } from "@/functions/attendance_functions";
 
 import {
   AttendanceEntrance,
   AttendanceExit,
+  AttendanceFilter,
   AttendanceResponse,
 } from "@/functions/models/attendance";
 
@@ -28,6 +30,7 @@ interface AttendanceContextType {
   markEntry: (data: AttendanceEntrance) => Promise<void>;
   markExit: (data: AttendanceExit) => Promise<void>;
   refreshMyAttendances: () => Promise<void>;
+  downloadReport: (data:AttendanceFilter) => Promise<void>
 }
 
 interface AttendanceProviderProps {
@@ -121,6 +124,34 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
     }
   };
 
+  const downloadReport = async (data: AttendanceFilter) => {
+    try {
+        // Mostrar un indicador de carga (opcional)
+        console.log('Descargando reporte...');
+        
+        const fileUri = await DownloadExcelReport(data);
+
+        if (fileUri) {
+            console.log('Reporte descargado exitosamente');
+            // Opcional: mostrar un alert o toast de éxito
+            Alert.alert(
+                'Éxito', 
+                'El reporte se ha generado correctamente',
+                [{ text: 'OK' }]
+            );
+        }
+
+    } catch (error: any) {
+        console.error('Error al generar el reporte:', error);
+        // Mostrar error al usuario
+        Alert.alert(
+            'Error', 
+            'No se pudo generar el reporte. Por favor intenta de nuevo.',
+            [{ text: 'OK' }]
+        );
+    }
+  }
+
   const canMarkEntry = !actualAttendance;
 
   const canMarkExit =
@@ -144,6 +175,7 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
         markEntry,
         markExit,
         refreshMyAttendances,
+        downloadReport
       }}
     >
       {children}
