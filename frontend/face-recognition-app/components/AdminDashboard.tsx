@@ -268,8 +268,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
             </TouchableOpacity>
           </View>
           <View style={styles.itemsContainer}>
-            {places.map((place) => (
-              <View key={place.id} style={styles.placeItem}>
+            {places.map((place, index) => (
+              <View key={place.id || `place-${index}`} style={styles.placeItem}>
                 <Text style={styles.placeItemText}>{place.name}</Text>
               </View>
             ))}
@@ -319,8 +319,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
             </TouchableOpacity>
           </View>
           <View style={styles.itemsContainer}>
-            {areas.map((area) => (
-              <View key={area.id} style={styles.areaItem}>
+            {areas.map((area, index) => (
+              <View key={area.id || `area-${index}`} style={styles.areaItem}>
                 <Text style={styles.areaItemText}>{area.name}</Text>
               </View>
             ))}
@@ -379,6 +379,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
               {showSedePicker && (
                 <View style={styles.filterDropdown}>
                   <TouchableOpacity
+                    key="sede-all"
                     onPress={() => {
                       setFilterSede(undefined);
                       setShowSedePicker(false);
@@ -387,9 +388,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   >
                     <Text style={styles.filterDropdownItemText}>Todas las sedes</Text>
                   </TouchableOpacity>
-                  {places.map((place) => (
+                  {places.map((place, index) => (
                     <TouchableOpacity
-                      key={place.id}
+                      key={place.id || `sede-${index}`}
                       onPress={() => {
                         setFilterSede(place.id);
                         setShowSedePicker(false);
@@ -419,6 +420,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
               {showAreaPicker && (
                 <View style={styles.filterDropdown}>
                   <TouchableOpacity
+                    key="area-all"
                     onPress={() => {
                       setFilterArea(undefined);
                       setShowAreaPicker(false);
@@ -427,9 +429,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   >
                     <Text style={styles.filterDropdownItemText}>Todas las áreas</Text>
                   </TouchableOpacity>
-                  {areas.map((area) => (
+                  {areas.map((area, index) => (
                     <TouchableOpacity
-                      key={area.id}
+                      key={area.id || `area-${index}`}
                       onPress={() => {
                         setFilterArea(area.id);
                         setShowAreaPicker(false);
@@ -459,6 +461,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
               {showEmployeePicker && (
                 <View style={styles.filterDropdown}>
                   <TouchableOpacity
+                    key="employee-all"
                     onPress={() => {
                       setFilterEmployee(undefined);
                       setShowEmployeePicker(false);
@@ -467,9 +470,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   >
                     <Text style={styles.filterDropdownItemText}>Todos los empleados</Text>
                   </TouchableOpacity>
-                  {employees.map((emp) => (
+                  {employees.map((emp, index) => (
                     <TouchableOpacity
-                      key={emp.id}
+                      key={emp.id || `employee-${index}`}
                       onPress={() => {
                         setFilterEmployee(emp.id);
                         setShowEmployeePicker(false);
@@ -532,7 +535,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
             <View style={styles.attendanceItemsContainer}>
               {filteredAttendances.map((attendance, index) => (
                 <View
-                  key={attendance.id}
+                  key={attendance.id || `attendance-${index}`}
                   style={index !== filteredAttendances.length - 1 ? styles.attendanceItemContainerWithBorder : styles.attendanceItemContainer}
                 >
                   <View style={styles.attendanceItemUser}>
