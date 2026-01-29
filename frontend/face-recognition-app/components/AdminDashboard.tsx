@@ -35,7 +35,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const {users, places, areas} = useAuthContext()
   const [filterSede, setFilterSede] = useState<number | undefined>();
   const [filterArea, setFilterArea] = useState<number | undefined>();
-  const [filterEmployee, setFilterEmployee] = useState<string>();
+  const [filterEmployee, setFilterEmployee] = useState<string | undefined>();
   const [filterDateStart, setFilterDateStart] = useState<string>();
   const [filterDateEnd, setFilterDateEnd] = useState<string>();
   const [showAddPlace, setShowAddPlace] = useState(false);
@@ -371,7 +371,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 style={styles.filterPickerButton}
               >
                 <Text style={filterSede ? styles.filterPickerButtonTextActive : styles.filterPickerButtonTextPlaceholder}>
-                  {filterSede || "Todas las sedes"}
+                  {filterSede 
+                    ? places.find(p => p.id === filterSede)?.name || "Todas las sedes"
+                    : "Todas las sedes"}
                 </Text>
               </TouchableOpacity>
               {showSedePicker && (
@@ -409,7 +411,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 style={styles.filterPickerButton}
               >
                 <Text style={filterArea ? styles.filterPickerButtonTextActive : styles.filterPickerButtonTextPlaceholder}>
-                  {filterArea || "Todas las áreas"}
+                  {filterArea 
+                    ? areas.find(a => a.id === filterArea)?.name || "Todas las áreas"
+                    : "Todas las áreas"}
                 </Text>
               </TouchableOpacity>
               {showAreaPicker && (
@@ -447,14 +451,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                 style={styles.filterPickerButton}
               >
                 <Text style={filterEmployee ? styles.filterPickerButtonTextActive : styles.filterPickerButtonTextPlaceholder}>
-                  {filterEmployee || "Todos los empleados"}
+                  {filterEmployee 
+                    ? employees.find(e => e.id === filterEmployee)?.name || "Todos los empleados"
+                    : "Todos los empleados"}
                 </Text>
               </TouchableOpacity>
               {showEmployeePicker && (
                 <View style={styles.filterDropdown}>
                   <TouchableOpacity
                     onPress={() => {
-                      setFilterEmployee('');
+                      setFilterEmployee(undefined);
                       setShowEmployeePicker(false);
                     }}
                     style={styles.filterDropdownItem}
