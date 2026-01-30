@@ -118,16 +118,22 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
       <Modal visible transparent animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.container}>
-            <Text style={{ color: 'white', marginBottom: 20 }}>
+            <Text style={{ color: 'white', marginBottom: 20, textAlign: 'center', fontSize: 16 }}>
               Se requiere acceso a la cámara
             </Text>
 
-            <TouchableOpacity onPress={requestPermission}>
-              <Text style={{ color: '#60A5FA' }}>Permitir cámara</Text>
+            <TouchableOpacity 
+              onPress={requestPermission}
+              style={styles.retryButton}
+            >
+              <Text style={styles.retryButtonText}>Permitir cámara</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={onCancel} style={{ marginTop: 20 }}>
-              <Text style={{ color: '#9CA3AF' }}>Cancelar</Text>
+            <TouchableOpacity 
+              onPress={onCancel} 
+              style={[styles.cancelButton, { marginTop: 12 }]}
+            >
+              <Text style={styles.cancelButtonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -140,18 +146,16 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
       <View style={styles.overlay}>
         <View style={styles.container}>
 
-          {/* Mantener la cámara montada siempre, solo ocultarla */}
-          <View style={styles.scanFrameContainer}>
-            <View 
-              style={[
-                styles.scanFrame, 
-                state !== 'scanning' && { display: 'none' }
-              ]}
-            >
+          {/* Mantener la cámara SIEMPRE montada - solo ocultar visualmente */}
+          <View style={[
+            styles.cameraWrapper,
+            state !== 'scanning' && { position: 'absolute', opacity: 0, pointerEvents: 'none' }
+          ]}>
+            <View style={styles.scanFrame}>
               <CameraView
                 ref={cameraRef}
                 facing="front"
-                style={{ width: '100%', height: '100%' }}
+                style={styles.camera}
                 onCameraReady={() => {
                   console.log('Camera ready');
                   setCameraReady(true);
@@ -160,77 +164,124 @@ const FacialVerification: React.FC<FacialVerificationProps> = ({
               />
             </View>
 
-            {/* ESCANEANDO */}
-            {state === 'scanning' && (
-              <>
-                <Text style={styles.scanningTitle}>
-                  Verificando rostro para marcar {actionType}
-                </Text>
-
-                {canCapture && (
-                  <TouchableOpacity
-                    onPress={captureFace}
-                    style={{
-                      marginTop: 20,
-                      paddingVertical: 12,
-                      paddingHorizontal: 20,
-                      backgroundColor: '#2563EB',
-                      borderRadius: 12,
-                    }}
-                  >
-                    <Text style={{ color: 'white', fontWeight: '600' }}>
-                      Capturar rostro
-                    </Text>
-                  </TouchableOpacity>
-                )}
-
-                {!canCapture && cameraReady && (
-                  <Text style={{ color: '#FCD34D', marginTop: 15 }}>
-                    Preparando cámara...
-                  </Text>
-                )}
-              </>
+            {/* Indicador de progreso circular */}
+            {cameraReady && !canCapture && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color="#60A5FA" />
+              </View>
             )}
           </View>
 
+          {/* ESCANEANDO */}
+          {state === 'scanning' && (
+            <View style={styles.scanningContainer}>
+              {/* Título principal */}
+              <Text style={styles.scanningTitle}>
+                Control de Asistencia
+              </Text>
+              
+              <Text style={styles.scanningSubtitle}>
+                Verificando rostro para marcar {actionType}
+              </Text>
+
+              {/* Espacio para la cámara que está arriba */}
+              <View style={{ height: 340, marginBottom: 32 }} />
+
+              {/* Botón de captura */}
+              {canCapture ? (
+                <TouchableOpacity
+                  onPress={captureFace}
+                  style={styles.captureButton}
+                >
+                  <Text style={styles.captureButtonText}>
+                    Capturar rostro
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.preparingContainer}>
+                  <ActivityIndicator size="small" color="#FCD34D" />
+                  <Text style={styles.preparingText}>
+                    Preparando cámara...
+                  </Text>
+                </View>
+              )}
+
+              {/* Botón cancelar en la parte inferior */}
+              <TouchableOpacity 
+                onPress={onCancel}
+                style={styles.bottomCancelButton}
+              >
+                <Text style={styles.bottomCancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* CARGANDO */}
           {state === 'loading' && (
-            <View style={{ alignItems: 'center' }}>
-              <ActivityIndicator size="large" color="#60A5FA" />
-              <Text style={{ color: 'white', marginTop: 10 }}>
-                Verificando identidad...
-              </Text>
+            <View style={styles.loadingContainer}>
+              <View style={styles.loadingIconBox}>
+                <ActivityIndicator size="large" color="#ffffff" />
+              </View>
+              <View style={styles.loadingCard}>
+                <Text style={styles.loadingTitle}>
+                  Verificando identidad
+                </Text>
+                <Text style={styles.loadingSubtitle}>
+                  Por favor espera un momento...
+                </Text>
+              </View>
             </View>
           )}
 
           {/* ÉXITO */}
           {state === 'success' && (
             <View style={styles.successContainer}>
-              <CheckCircle size={120} color="#22C55E" />
-              <Text style={styles.successTitle}>Rostro verificado</Text>
+              <View style={styles.successIconBox}>
+                <CheckCircle size={64} color="#ffffff" />
+              </View>
+              <View style={styles.successCard}>
+                <Text style={styles.successTitle}>¡Rostro verificado!</Text>
+                <Text style={styles.successSubtitle}>
+                  {actionType === 'entrada' ? 'Entrada' : 'Salida'} registrada correctamente
+                </Text>
+                <Text style={styles.successDescription}>
+                  Tu asistencia ha sido marcada con éxito
+                </Text>
+              </View>
             </View>
           )}
 
           {/* ERROR */}
           {state === 'error' && (
             <View style={styles.errorContainer}>
-              <XCircle size={120} color="#EF4444" />
-              <Text style={styles.errorTitle}>Rostro no reconocido</Text>
+              <View style={styles.errorIconBox}>
+                <XCircle size={64} color="#ffffff" />
+              </View>
+              <View style={styles.errorCard}>
+                <Text style={styles.errorTitle}>Rostro no reconocido</Text>
+                <Text style={styles.errorSubtitle}>
+                  No pudimos verificar tu identidad
+                </Text>
 
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={onCancel}>
-                  <Text style={styles.cancelButtonText}>Cancelar</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity 
+                    onPress={onCancel}
+                    style={styles.cancelButton}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancelar</Text>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  onPress={() => {
-                    setState('scanning');
-                    setCameraReady(false);
-                    setCanCapture(false);
-                  }}
-                >
-                  <Text style={styles.retryButtonText}>Reintentar</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setState('scanning');
+                      setCameraReady(false);
+                      setCanCapture(false);
+                    }}
+                    style={styles.retryButton}
+                  >
+                    <Text style={styles.retryButtonText}>Reintentar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           )}
