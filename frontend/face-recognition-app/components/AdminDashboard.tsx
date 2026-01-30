@@ -83,7 +83,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
       console.log('📋 Total asistencias antes de filtrar:', filtered.length);
       
       filtered = filtered.filter((att) => {
-        const attUserId = String(att.user.id);
+        const attUserId = String(att.user.user_id);
         const filterEmpId = String(filterEmployee);
         const match = attUserId === filterEmpId;
         
@@ -196,7 +196,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const getSelectedEmployeeName = () => {
     if (!filterEmployee) return "Todos los empleados";
     
-    const selected = employees.find(e => String(e.id) === String(filterEmployee));
+    const selected = employees.find(e => String(e.user_id) === String(filterEmployee));
     console.log('🔍 Buscando empleado con ID:', filterEmployee);
     console.log('🔍 Empleado encontrado:', selected);
     
@@ -504,14 +504,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
                   </TouchableOpacity>
                   {employees.map((emp, index) => (
                     <TouchableOpacity
-                      key={emp.id || `employee-${index}`}
+                      key={emp.user_id || `employee-${index}`}
                       onPress={() => {
                         console.log('✅ Empleado seleccionado:', {
-                          id: emp.id,
+                          id: emp.user_id,
                           name: emp.name,
-                          tipo: typeof emp.id
+                          tipo: typeof emp.role.name
                         });
-                        setFilterEmployee(emp.id);
+                        setFilterEmployee(emp.user_id);
                         setShowEmployeePicker(false);
                       }}
                       style={styles.filterDropdownItem}
