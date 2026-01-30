@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
-COPY separateDB.db ./separateDB.db
+COPY recognition.db ./recognition.db
 
 EXPOSE 8000
 
