@@ -101,11 +101,28 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
   const markEntry = async (data: AttendanceEntrance) => {
     try {
       setLoading(true);
-      await RegisterEntrance(data);
-      Alert.alert(`Entrada registrada correctamente`)
+    
+      console.log('📍 Intentando marcar entrada:', data);
+    
+      const result = await RegisterEntrance(data);
+    
+      if (!result) {
+        throw new Error('No se recibió respuesta del servidor');
+      }
+    
+      Alert.alert('Éxito', 'Entrada registrada correctamente');
       await refreshMyAttendances();
+    
     } catch (error: any) {
-      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
+      console.error('❌ Error en markEntry:', error);
+    
+      // Mostrar el mensaje de error específico
+      const errorMessage = error.message || 'Ha ocurrido un error inesperado';
+      Alert.alert('Error', errorMessage);
+    
+      // Re-lanzar para que App.tsx también lo maneje si es necesario
+      throw error;
+    
     } finally {
       setLoading(false);
     }
@@ -114,11 +131,28 @@ export const AttendanceProvider = ({ children }: AttendanceProviderProps) => {
   const markExit = async (data: AttendanceExit) => {
     try {
       setLoading(true);
-      await RegisterExit(data);
-      Alert.alert(`Salida registrada correctamente`)
+    
+      console.log('🚪 Intentando marcar salida:', data);
+    
+      const result = await RegisterExit(data);
+    
+      if (!result) {
+        throw new Error('No se recibió respuesta del servidor');
+      }
+    
+      Alert.alert('Éxito', 'Salida registrada correctamente');
       await refreshMyAttendances();
+    
     } catch (error: any) {
-      Alert.alert(`ha ocurrido un error inesperado ${error.message}`)
+      console.error('❌ Error en markExit:', error);
+    
+      // Mostrar el mensaje de error específico
+      const errorMessage = error.message || 'Ha ocurrido un error inesperado';
+      Alert.alert('Error', errorMessage);
+    
+      // Re-lanzar para que App.tsx también lo maneje si es necesario
+      throw error;
+    
     } finally {
       setLoading(false);
     }

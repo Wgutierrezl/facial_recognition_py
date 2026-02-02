@@ -98,14 +98,14 @@ function AppContent() {
           return;
         }
 
-        // Llamar a markEntry del contexto
+        console.log('📍 Marcando entrada desde App.tsx');
         await markEntry({
           place_id: selectedPlaceId,
           file: data.image
         });
-        
+      
       } else if (pendingAction === 'salida') {
-        // Llamar a markExit del contexto
+        console.log('🚪 Marcando salida desde App.tsx');
         await markExit({
           file: data.image
         });
@@ -117,8 +117,9 @@ function AppContent() {
       setCurrentScreen('employeeDashboard');
 
     } catch (error: any) {
-      console.error('Error al marcar asistencia:', error);
-      // Los errores ya se manejan en el contexto con Alert
+      console.error('❌ Error en handleFacialAttendanceSuccess:', error);
+    
+      // El contexto ya mostró el Alert, solo limpiar estados
       setPendingAction(null);
       setSelectedPlaceId(null);
       setCurrentScreen('employeeDashboard');
