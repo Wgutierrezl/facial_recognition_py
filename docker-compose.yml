@@ -6,7 +6,7 @@ services:
       context: ./backend
     container_name: facial-backend
     ports:
-      - "8090:8000"
+      - "8000:8000"
     volumes:
       - ./backend/recognition.db:/app/recognition.db
     restart: always
@@ -20,7 +20,7 @@ services:
       context: ./frontend/face-recognition-app
     container_name: facial-frontend
     ports: 
-      - "8083:8083"   # Metro bundler
+      - "8081:8081"   # Metro bundler
       - "19000:19000" # ✅ CAMBIAR: Expo DevTools (no 8083)
       - "19001:19001" # ✅ AGREGAR: Expo DevTools
       - "19002:19002" # ✅ AGREGAR: Expo DevTools
@@ -31,8 +31,8 @@ services:
       - backend
     environment:
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-      - REACT_NATIVE_PACKAGER_HOSTNAME=192.168.40.5
-      - URL=http://192.168.40.5:8090  # ✅ CAMBIAR: Usar puerto expuesto 8080, no 8000
+      - REACT_NATIVE_PACKAGER_HOSTNAME=192.168.102.119
+      - URL=http://192.168.102.119:8000  # ✅ CAMBIAR: Usar puerto expuesto 8080, no 8000
     stdin_open: true
     tty: true
     networks:
