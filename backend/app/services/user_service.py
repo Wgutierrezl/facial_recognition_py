@@ -8,6 +8,7 @@ from app.schemas.user_schema import UserCreate, UserResponse, UserLogin, Session
 from app.repositories.user_repository import UserRepository
 from sqlalchemy.orm import Session
 from app.services.rekognition_service import RekognitionService
+import os
 
 class UserService:
     def __init__(self, db: Session, rekognition_service: RekognitionService):
@@ -16,6 +17,8 @@ class UserService:
         self.rekognition_service = rekognition_service
         self.token_service = TokenService()
         self.hash_service = HashService()
+        """ self.collection_id='users_collection' """
+        self.collection_id=os.getenv('REKOGNITION_COLLECTION_ID')
 
     def create_user(self, user_create: UserCreate, file: UploadFile) -> UserResponse:
         try:
@@ -28,10 +31,10 @@ class UserService:
             image_bytes = file.file.read()
 
             # Define the collection ID for Rekognition
-            collection_id = "users_collection"
+            #collection_id = "users_collection"
 
             face_id_existing=self.rekognition_service.search_face(
-                collection_id=collection_id,
+                collection_id=self.collection_id,
                 image_bytes=image_bytes
             )
 
@@ -44,14 +47,14 @@ class UserService:
             """ self.rekognition_service.delete_collection(collection_id) """
 
             # Create the collection if it doesn't exist
-            self.rekognition_service.create_collection(collection_id)
+            self.rekognition_service.create_collection(self.collection_id)
 
             # Generate a safe external ID for the face
             safe_external_id = str(uuid4())
 
             # Index the face and get the face ID
             face_id=self.rekognition_service.index_face(
-                collection_id=collection_id,
+                collection_id=self.collection_id,
                 image_bytes=image_bytes,
                 external_image_id=safe_external_id
             )
@@ -82,10 +85,10 @@ class UserService:
 
             image_bytes = image.file.read()
 
-            collection_id = "users_collection"
+            #collection_id = "users_collection"
 
             face_id=self.rekognition_service.search_face(
-                collection_id=collection_id,
+                collection_id=self.collection_id,
                 image_bytes=image_bytes
             )
 

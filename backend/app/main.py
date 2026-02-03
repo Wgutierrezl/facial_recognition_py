@@ -1,4 +1,9 @@
 from app.config.db_config import engine, Base
+# Importar (en código Python)
+from dotenv import load_dotenv
+
+# Cargar variables de entorno AL INICIO, antes de cualquier import
+
 from app.repositories.user_repository import UserRepository
 from app.models.user import User
 from app.schemas.user_schema import UserCreate, UserResponse
@@ -11,8 +16,8 @@ from app.controllers.role_controller import router as role_router
 from app.controllers.area_controller import router as area_router
 from app.controllers.place_controller import router as place_router
 from app.controllers.attendance_controller import router as attendance_router
-
-
+from app.controllers.rekognition_controller import router as rekognition_router
+load_dotenv()
 # Crear tablas
 Base.metadata.create_all(bind=engine)
 
@@ -26,6 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(rekognition_router)
 app.include_router(role_router)
 app.include_router(area_router)
 app.include_router(place_router)

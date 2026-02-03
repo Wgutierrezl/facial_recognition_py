@@ -8,6 +8,8 @@ from datetime import date, datetime, time, timedelta
 from typing import List
 from app.services.rekognition_service import RekognitionService
 from app.services.excel_service import ExcelService
+import os
+
 class AttendanceService:
 
     def __init__(self, db:Session):
@@ -15,7 +17,8 @@ class AttendanceService:
         self.attendance_repository = AttendanceRepository(self.db)
         self.excel_service= ExcelService()
         self.rekognition_service = RekognitionService()
-        self.collection_id="users_collection"
+        """ self.collection_id="users_collection" """
+        self.collection_id=os.getenv('REKOGNITION_COLLECTION_ID')
         self.user_service= UserService(self.db,self.rekognition_service)
 
     def create_attendance_entrance(self, data:AttendanceEntrance, user_id:str,image:UploadFile) -> AttendanceResponse:
