@@ -10,3 +10,5 @@ pillow
 pydantic
 openpyxl
 pandas
+pymysql
+python-dotenv

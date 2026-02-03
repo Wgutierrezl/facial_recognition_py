@@ -8,7 +8,7 @@ class Attendance(Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(String, ForeignKey("users.user_id"), nullable=False)
+    user_id = Column(String(100), ForeignKey("users.user_id"), nullable=False)
     place_id = Column(Integer, ForeignKey("places.id"), nullable=False)
 
     work_date = Column(Date, nullable=False)        # Día trabajado
@@ -17,7 +17,7 @@ class Attendance(Base):
 
     total_hours = Column(Float, nullable=True)      # Horas trabajadas
 
-    face_verified = Column(String, default="yes")   # Validación Rekognition
+    face_verified = Column(String(100), default="yes")   # Validación Rekognition
 
     user = relationship("User")
     place = relationship("Place")
