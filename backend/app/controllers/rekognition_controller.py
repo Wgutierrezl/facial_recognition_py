@@ -1,6 +1,9 @@
 from app.services.rekognition_service import RekognitionService
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 router=APIRouter(
@@ -13,7 +16,7 @@ def create_collection():
     try:
         rekog_service=RekognitionService()
 
-        collection_id='users_collection'
+        collection_id=os.getenv('REKOGNITION_COLLECTION_ID')
         
         rekog_service.create_collection(collection_id)
 

@@ -3,7 +3,7 @@ import StorageService from './storage';
 
 const api=axios.create({
     baseURL: process.env.URL || 'http://192.168.102.119:8000',
-    timeout: 10000
+    /* timeout: 10000 */
 });
 
 api.interceptors.request.use(

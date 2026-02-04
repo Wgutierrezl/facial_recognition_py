@@ -9,6 +9,8 @@ from typing import List
 from app.services.rekognition_service import RekognitionService
 from app.services.excel_service import ExcelService
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class AttendanceService:
 

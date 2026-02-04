@@ -9,6 +9,8 @@ from app.repositories.user_repository import UserRepository
 from sqlalchemy.orm import Session
 from app.services.rekognition_service import RekognitionService
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class UserService:
     def __init__(self, db: Session, rekognition_service: RekognitionService):
