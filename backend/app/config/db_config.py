@@ -24,7 +24,7 @@ engine = create_engine(
     pool_pre_ping=True,
     connect_args={
         "ssl": {
-            "ca": "C:/Project_Face_AWS/backend/certs/global-bundle.pem"
+            "ca": "/app/certs/global-bundle.pem"
         }
     }
 )

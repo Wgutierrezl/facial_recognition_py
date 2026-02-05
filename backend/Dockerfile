@@ -2,10 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+# 🔐 Instalar certificados del sistema (IMPORTANTE para SSL)
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
 
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 📜 Copiar certificados
+COPY certs ./certs
+
+# 📦 Copiar app
 COPY app ./app
 COPY recognition.db ./recognition.db
 
