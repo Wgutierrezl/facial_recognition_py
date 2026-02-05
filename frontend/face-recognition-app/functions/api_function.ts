@@ -2,7 +2,7 @@ import axios from 'axios';
 import StorageService from './storage';
 
 const api=axios.create({
-    baseURL: process.env.URL || 'http://192.168.102.119:8000',
+    baseURL:'http://34.201.3.70:8000',
     /* timeout: 10000 */
 });
 

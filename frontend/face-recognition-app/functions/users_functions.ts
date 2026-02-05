@@ -93,7 +93,7 @@ export async function LoginManually(data:LoginDTO) : Promise<SessionDTO | void> 
         return response.data
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;
@@ -113,7 +113,7 @@ export async function GetAllUsers() : Promise<UserResponse[] | void> {
         return response.data 
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;
@@ -133,7 +133,7 @@ export async function GetProfile() : Promise<UserResponse | void> {
         return response.data
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;

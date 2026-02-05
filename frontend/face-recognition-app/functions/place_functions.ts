@@ -10,7 +10,7 @@ export async function CreatePlace(data:PlaceCreate) : Promise<PlaceResponse | vo
         return response.data;
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;
@@ -29,7 +29,7 @@ export async function GetAllPlaces() : Promise<PlaceResponse[] | void> {
         return response.data;
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;

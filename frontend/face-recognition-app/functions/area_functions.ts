@@ -9,7 +9,7 @@ export async function CreateArea(data:AreaCreate) : Promise<AreaResponse | void>
         return response.data;
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;
@@ -28,7 +28,7 @@ export async function GetAllAreas() : Promise<AreaResponse[] | void> {
         return response.data;
 
     }catch(error:any){
-        const statusCode=error.response.statusCode
+        const statusCode=error.response.status
         if(statusCode===401 || statusCode===404){
             console.log(`ha ocurrido un error ${error.message}`)
             return ;
