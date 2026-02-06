@@ -23,6 +23,11 @@ Base.metadata.create_all(bind=engine)
 
 app=FastAPI()
 
+#health endpoint
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,9 +36,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(rekognition_router)
-app.include_router(role_router)
-app.include_router(area_router)
-app.include_router(place_router)
-app.include_router(user_router)
-app.include_router(attendance_router)
+app.include_router(rekognition_router, prefix='/api')
+app.include_router(role_router,prefix='/api')
+app.include_router(area_router,prefix='/api')
+app.include_router(place_router,prefix='/api')
+app.include_router(user_router,prefix='/api')
+app.include_router(attendance_router,prefix='/api')

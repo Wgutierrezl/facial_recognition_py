@@ -2,7 +2,7 @@ import axios from 'axios';
 import StorageService from './storage';
 
 const api=axios.create({
-    baseURL:'http://34.201.3.70:8000',
+    baseURL:'http://alb-gesttask-1697059265.us-east-1.elb.amazonaws.com:8000/api',
     /* timeout: 10000 */
 });
 
