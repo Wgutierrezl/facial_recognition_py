@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "face-recognition-app",
+    "name": "AttendanceTracker",
     "slug": "face-recognition-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/AttendanceTracker.png",
     "scheme": "facerecognitionapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
