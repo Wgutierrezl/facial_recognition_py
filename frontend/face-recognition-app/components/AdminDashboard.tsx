@@ -184,13 +184,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+  // Toma solo la parte de la fecha (YYYY-MM-DD)
+    const dateOnly = dateStr.split('T')[0];
+    const [year, month, day] = dateOnly.split('-');
+  
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  
     return date.toLocaleDateString('es-ES', {
+      weekday: 'short',
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     });
-  };
+};
 
   // 🔥 Función helper para obtener el nombre del empleado seleccionado
   const getSelectedEmployeeName = () => {
