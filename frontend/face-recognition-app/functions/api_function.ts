@@ -3,7 +3,7 @@ import StorageService from './storage';
 
 const api=axios.create({
     /* baseURL:'https://d12eeav48qadl8.cloudfront.net/api', */
-    baseURL: 'http://192.168.40.5:8000/api'
+    baseURL: 'http://192.168.40.2:8000/api'
     /* timeout: 10000 */
 });
 
