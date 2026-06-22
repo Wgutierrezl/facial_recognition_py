@@ -1,10 +1,13 @@
+import os
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from app.models.user import User
 
 class TokenService:
 
-    SECRET_KEY = "***REMOVED***"
+    SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    if not SECRET_KEY:
+        raise RuntimeError("JWT_SECRET_KEY environment variable is required")
     ALGORITHM = "HS256"
     EXPIRE_MINUTES = 60
 
