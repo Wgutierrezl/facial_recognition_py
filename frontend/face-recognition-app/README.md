@@ -1,50 +1,139 @@
-# Welcome to your Expo app 👋
+# Frontend — Facil Rekognition
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App móvil de control de asistencia por reconocimiento facial. Permite a los empleados fichar entrada/salida con su cámara y a los administradores gestionar el sistema.
 
-## Get started
+Construida con React Native vía Expo SDK 54 y expo-router para el enrutamiento basado en archivos.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Stack
 
-2. Start the app
+| Tecnología | Versión | Rol |
+|---|---|---|
+| React Native | 0.81.5 | Framework base |
+| Expo SDK | ~54.0.31 | Plataforma de build y runtime |
+| expo-router | ~6.0.21 | Enrutamiento basado en archivos |
+| expo-camera | ~17.0.10 | Captura de imagen facial (`CameraView`, `takePictureAsync`) |
+| expo-secure-store | — | Almacenamiento seguro del JWT, rol y userId |
+| axios | — | Cliente HTTP con interceptor de JWT (Bearer automático) |
+| TypeScript | — | Lenguaje principal |
+| @react-navigation/bottom-tabs | — | Navegación por tabs |
+| lucide-react-native | — | Iconografía |
 
-   ```bash
-   npx expo start
-   ```
+> `tailwind.config.js` está presente en el proyecto pero NativeWind no está instalado ni configurado — es configuración muerta de un intento anterior.
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Mapa de pantallas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+La app usa un único stack de navegación dentro de `app/(tabs)/index.tsx`. Las "pantallas" son componentes de React montados condicionalmente según el estado de autenticación y el rol del usuario.
 
-## Get a fresh project
+```
+LoginScreen           ← pantalla inicial (siempre)
+    │
+    ├── [login facial]   → FacialVerification (modo: login)
+    │       └── éxito → según rol:
+    │               ├── employee → EmployeeDashboard
+    │               └── admin   → AdminDashboard
+    │
+    └── [login manual]   → credenciales email+password
+            └── éxito → según rol (igual que arriba)
 
-When you're ready, run:
+EmployeeDashboard
+    ├── [marcar entrada] → SiteSelection → FacialVerification (modo: asistencia)
+    ├── [marcar salida]  → FacialVerification (modo: asistencia)
+    └── [ver historial]  → EmployeeHistory
 
-```bash
-npm run reset-project
+AdminDashboard
+    └── Vista de asistencia global + gestión
+
+RegisterScreen
+    └── Alta de nuevo empleado con foto facial (solo admin)
+
+FacialVerification    ← modal de captura: abre cámara, toma foto, llama a la API
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Estructura de archivos
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+frontend/face-recognition-app/
+├── app/
+│   ├── _layout.tsx              ← Root layout (expo-router)
+│   ├── modal.tsx
+│   └── (tabs)/
+│       ├── _layout.tsx          ← Stack sin header
+│       └── index.tsx            ← Entry point: renderiza pantalla según estado auth
+├── components/
+│   ├── LoginScreen.tsx
+│   ├── RegisterScreen.tsx
+│   ├── FacialVerification.tsx   ← CameraView + takePictureAsync → API call
+│   ├── AdminDashboard.tsx
+│   ├── EmployeeDashboard.tsx
+│   ├── EmployeeHistory.tsx
+│   ├── SiteSelection.tsx
+│   └── context/
+│       ├── AuthContext.tsx       ← Estado global de usuario autenticado
+│       ├── AttendanceContext.tsx ← Estado de asistencia activa
+│       └── AdminContext.tsx      ← Datos de administración
+├── functions/
+│   ├── api_function.ts          ← Instancia axios con baseURL e interceptor JWT
+│   ├── users_functions.ts
+│   ├── attendance_functions.ts
+│   ├── area_functions.ts
+│   ├── place_functions.ts
+│   ├── role_functions.ts
+│   ├── storage.ts               ← Wrapper de expo-secure-store
+│   └── models/                  ← Interfaces TypeScript (user, attendance, area, place, role)
+├── styles/                      ← StyleSheet por pantalla
+├── constants/theme.ts
+└── hooks/
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Variable de entorno
 
-Join our community of developers creating universal apps.
+| Variable | Requerida | Descripción |
+|---|---|---|
+| `URL` | No | URL base del backend **incluyendo** el prefijo `/api`. Si no se define, la app usa una IP de LAN hardcodeada en `functions/api_function.ts`. |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Crear el archivo `.env` en la raíz del proyecto (`frontend/face-recognition-app/.env`):
+
+```env
+URL=http://<IP-de-tu-máquina>:8000/api
+```
+
+> Expo expone las variables con prefijo `EXPO_PUBLIC_` en SDK 50+. Verificar la compatibilidad con la versión SDK 54 si se usa esa convención. En la versión actual del código se lee directamente `process.env.URL`.
+
+---
+
+## Desarrollo local con Expo Go
+
+```bash
+cd frontend/face-recognition-app
+
+# 1. Instalar dependencias
+npm install
+
+# 2. Crear archivo de entorno apuntando a tu backend local
+echo "URL=http://192.168.1.XX:8000/api" > .env
+# Reemplazar XX con la IP real de la máquina que corre el backend
+# El teléfono y la máquina deben estar en la misma red Wi-Fi
+
+# 3. Iniciar Metro bundler
+npx expo start
+```
+
+Escanear el QR con la app **Expo Go** (iOS / Android).
+
+---
+
+## Estado del deploy
+
+El frontend **no tiene un deploy en producción resuelto**.
+
+El enfoque con Docker + Expo no funcionó para producción (la imagen Docker de Expo no sirve para distribución de apps nativas). El backend sí estuvo desplegado en AWS ECS; el frontend se usó vía Expo Go durante el período de demo.
+
+El camino correcto para un deploy futuro es **Expo EAS Build** (genera `.apk` / `.ipa`) con **EAS Update** para actualizaciones OTA.
